@@ -1,6 +1,7 @@
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../controllers/apis.dart';
 import '../../models/switch_model.dart';
@@ -47,74 +48,73 @@ class _SwitchMatrixCardState extends State<SwitchMatrixCard> {
             offset: const Offset(5, 5),
           ),
         ],
-        color: Theme.of(context).appColors.buttonBackground,
+        color: Theme.of(context).appColors.buttonBackground.withOpacity(0.2),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          Icon(
+            FontAwesomeIcons.solidLightbulb,
+            color: switchOff ? Colors.yellow : Colors.grey,
+            size: 40,
+          ),
           Flexible(
             child: Text(
               widget.switchDetails.switchTypes[widget.index],
-              style: TextStyle(
-                fontSize: 20,
-                color: Theme.of(context).appColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Transform.scale(
-            scale: 1,
-            child: Switch(
-              onChanged: (value) async {
-                if (!widget.wifiName
-                        .contains(widget.switchDetails.switchSSID) &&
-                    !widget.switchDetails.switchSSID
-                        .contains(widget.wifiName)) {
-                  showToast(
-                      "Please Connect WIFI to ${widget.switchDetails.switchSSID} to proceed");
-                  return;
-                }
-                try {
-                  if (value) {
-                    ApiConnect.hitApiPost(
-                        "${widget.switchDetails.iPAddress}/getSwitchcmd$slNo", {
-                      "Lock_id": widget.switchDetails.switchId,
-                      "lock_passkey": widget.switchDetails.switchPassKey,
-                      "lock_cmd$slNo": "ON$slNo"
-                    });
-                    setState(() {
-                      switchOff = true;
-                    });
-                  } else if (!value) {
-                    ApiConnect.hitApiPost(
-                        "${widget.switchDetails.iPAddress}/getSwitchcmd$slNo", {
-                      "Lock_id": widget.switchDetails.switchId,
-                      "lock_passkey": widget.switchDetails.switchPassKey,
-                      "lock_cmd$slNo": "OFF$slNo"
-                    });
-                    setState(() {
-                      switchOff = false;
-                    });
-                  } else {}
-                } on DioException catch (e) {
-                  final scaffold = ScaffoldMessenger.of(context);
-                  scaffold.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          "Unable to perform. Try Again. Error: ${e.message}"),
-                    ),
-                  );
-                } catch (e) {
-                  debugPrint(e.toString());
-                }
-              },
-              value: switchOff,
-              activeColor: Theme.of(context).appColors.greenButton,
-              activeTrackColor: Theme.of(context).appColors.green,
-              inactiveThumbColor: Theme.of(context).appColors.redButton,
-              inactiveTrackColor: Theme.of(context).appColors.red,
-            ),
+          Switch(
+            onChanged: (value) async {
+              if (!widget.wifiName.contains(widget.switchDetails.switchSSID) &&
+                  !widget.switchDetails.switchSSID.contains(widget.wifiName)) {
+                showToast(
+                    "Please Connect WIFI to ${widget.switchDetails.switchSSID} to proceed");
+                return;
+              }
+              try {
+                if (value) {
+                  ApiConnect.hitApiPost(
+                      "${widget.switchDetails.iPAddress}/getSwitchcmd$slNo", {
+                    "Lock_id": widget.switchDetails.switchId,
+                    "lock_passkey": widget.switchDetails.switchPassKey,
+                    "lock_cmd$slNo": "ON$slNo"
+                  });
+                  setState(() {
+                    switchOff = true;
+                  });
+                } else if (!value) {
+                  ApiConnect.hitApiPost(
+                      "${widget.switchDetails.iPAddress}/getSwitchcmd$slNo", {
+                    "Lock_id": widget.switchDetails.switchId,
+                    "lock_passkey": widget.switchDetails.switchPassKey,
+                    "lock_cmd$slNo": "OFF$slNo"
+                  });
+                  setState(() {
+                    switchOff = false;
+                  });
+                } else {}
+              } on DioException catch (e) {
+                final scaffold = ScaffoldMessenger.of(context);
+                scaffold.showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        "Unable to perform. Try Again. Error: ${e.message}"),
+                  ),
+                );
+              } catch (e) {
+                debugPrint(e.toString());
+              }
+            },
+            value: switchOff,
+            activeColor: Theme.of(context).appColors.greenButton,
+            activeTrackColor: Theme.of(context).appColors.green,
+            inactiveThumbColor: Theme.of(context).appColors.grey,
+            inactiveTrackColor: Theme.of(context).appColors.white,
           ),
         ],
       ),

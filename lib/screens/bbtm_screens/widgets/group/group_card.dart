@@ -62,20 +62,12 @@ class _GroupCardState extends State<GroupCard> {
             children: [
               Text(
                 "Group Name: ",
-                style: TextStyle(
-                  fontSize: width * 0.04,
-                  color: Theme.of(context).appColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
                   widget.groupDetails.groupName,
-                  style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
             ],
@@ -85,20 +77,12 @@ class _GroupCardState extends State<GroupCard> {
             children: [
               Text(
                 "Selected Router: ",
-                style: TextStyle(
-                  fontSize: width * 0.04,
-                  color: Theme.of(context).appColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
                   widget.groupDetails.selectedRouter,
-                  style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
             ],
@@ -107,10 +91,7 @@ class _GroupCardState extends State<GroupCard> {
             children: [
               Text(
                 "Router Password: ",
-                style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
@@ -118,10 +99,7 @@ class _GroupCardState extends State<GroupCard> {
                       ? List.generate(widget.groupDetails.routerPassword.length,
                           (index) => "*").join()
                       : widget.groupDetails.routerPassword,
-                  style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w400),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               )
             ],
@@ -137,11 +115,7 @@ class _GroupCardState extends State<GroupCard> {
               children: [
                 Text(
                   "Selected Switches: ${widget.groupDetails.selectedSwitches.length}",
-                  style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 Icon(
                   isExpanded

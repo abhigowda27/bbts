@@ -52,8 +52,6 @@ class _ConnectToSwitchPageState extends State<ConnectToSwitchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final width = screenSize.width;
     return Scaffold(
       appBar: AppBar(title: Text(widget.switchDetails.switchSSID)),
       body: SingleChildScrollView(
@@ -115,17 +113,23 @@ class _ConnectToSwitchPageState extends State<ConnectToSwitchPage> {
             //       })
             // ],
 
-            Text(
-              'WIFI is connected to Wifi Name',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: width * 0.05),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'WIFI is connected to Wifi Name',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
             ),
-            Text(
-              _connectionStatus.toString(),
-              style: TextStyle(
-                  color: Theme.of(context).appColors.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: width * 0.06),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                '"$_connectionStatus"',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineMedium!
+                    .copyWith(color: Theme.of(context).appColors.primary),
+              ),
             ),
           ],
         ),

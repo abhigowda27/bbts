@@ -59,7 +59,6 @@ class _ConnectToRouterPageState extends State<ConnectToRouterPage> {
         appBar: AppBar(title: Text(widget.routerDetails.routerName)),
         body: SingleChildScrollView(
           child: Column(
-            mainAxisSize: MainAxisSize.max,
             children: [
               const SizedBox(
                 height: 20,
@@ -114,16 +113,23 @@ class _ConnectToRouterPageState extends State<ConnectToRouterPage> {
               //       })
               // ],
 
-              const Text(
-                'WIFI is connected to Wifi Name',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'WIFI is connected to Wifi Name',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
               ),
-              Text(
-                _connectionStatus.toString(),
-                style: TextStyle(
-                    color: Theme.of(context).appColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '"$_connectionStatus"',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium!
+                      .copyWith(color: Theme.of(context).appColors.primary),
+                ),
               ),
             ],
           ),

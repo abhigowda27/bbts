@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../../../../controllers/apis.dart';
 import '../../../tabs_page.dart';
@@ -31,9 +31,9 @@ class _RouterOnOffState extends State<RouterOnOff> {
   late String selectedControl = "OFF";
   final List<String> controls = [
     "OFF",
-    "HIGH",
     "LOW",
     "MEDIUM",
+    "HIGH",
   ];
 
   final Duration _timerDuration = const Duration(minutes: 2);
@@ -139,8 +139,6 @@ class _RouterOnOffState extends State<RouterOnOff> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final width = screenSize.width;
     return GestureDetector(
       onTap: () => _resetTimer,
       child: Scaffold(
@@ -163,7 +161,7 @@ class _RouterOnOffState extends State<RouterOnOff> {
             children: [
               if (widget.routerDetails.switchTypes.isNotEmpty) ...[
                 Container(
-                  margin: EdgeInsets.all(width * 0.04),
+                  margin: const EdgeInsets.all(20),
                   padding: const EdgeInsets.symmetric(
                       vertical: 10.0, horizontal: 16.0),
                   decoration: BoxDecoration(
@@ -174,7 +172,7 @@ class _RouterOnOffState extends State<RouterOnOff> {
                         offset: const Offset(5, 5),
                       ),
                     ],
-                    color: Theme.of(context).appColors.primary,
+                    color: Theme.of(context).appColors.primary.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -183,77 +181,67 @@ class _RouterOnOffState extends State<RouterOnOff> {
                     children: [
                       Text(
                         widget.routerDetails.switchName,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: width * 0.045,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Theme.of(context).appColors.background),
                       ),
-                      Transform.scale(
-                        scale: 1,
-                        child: Switch(
+                      if (widget.routerDetails.switchTypes.length > 1)
+                        Switch(
                           onChanged: (value) async {
-                            // final isApiOnline =
-                            //     await ApiConnect.isApiAvailable();
-                            const isApiOnline = false;
-                            debugPrint("internet available $isApiOnline");
-                            if (!isApiOnline) {
-                              if (!_connectionStatus.contains(
-                                      widget.routerDetails.routerName) &&
-                                  !widget.routerDetails.routerName
-                                      .contains(_connectionStatus)) {
-                                showToast(
-                                    "Please connect WIFI to ${widget.routerDetails.routerName} to proceed");
-                                return;
+                            if (!_connectionStatus.contains(
+                                    widget.routerDetails.routerName) &&
+                                !widget.routerDetails.routerName
+                                    .contains(_connectionStatus)) {
+                              showToast(
+                                  "Please connect WIFI to ${widget.routerDetails.routerName} to proceed");
+                              return;
+                            }
+
+                            // Connected to router without internet → Make local API calls
+                            final totalSwitches =
+                                widget.routerDetails.switchTypes.length;
+
+                            try {
+                              List<Future<void>> apiCalls = [];
+
+                              for (int i = 1;
+                                  i <=
+                                      totalSwitches +
+                                          (widget.routerDetails.selectedFan!
+                                                  .isNotEmpty
+                                              ? 1
+                                              : 0);
+                                  i++) {
+                                final uri =
+                                    "${widget.routerDetails.iPAddress}/getSwitchcmd$i";
+                                final payload = {
+                                  "Lock_id": widget.routerDetails.switchID,
+                                  "lock_passkey":
+                                      widget.routerDetails.switchPasskey,
+                                  "lock_cmd$i": (widget.routerDetails
+                                              .selectedFan!.isNotEmpty &&
+                                          i == totalSwitches + 1)
+                                      ? (value ? "HIGH" : "OFF")
+                                      : (value ? "ON$i" : "OFF$i"),
+                                };
+
+                                apiCalls.add(
+                                  ApiConnect.hitApiPost(uri, payload)
+                                      .timeout(const Duration(seconds: 1))
+                                      .then((_) =>
+                                          debugPrint(value ? "ON" : "OFF"))
+                                      .catchError((e) =>
+                                          debugPrint("Error on switch $i: $e")),
+                                );
                               }
 
-                              // Connected to router without internet → Make local API calls
-                              final totalSwitches =
-                                  widget.routerDetails.switchTypes.length;
+                              setState(() {
+                                switchOn = value;
+                              });
 
-                              try {
-                                List<Future<void>> apiCalls = [];
-
-                                for (int i = 1;
-                                    i <=
-                                        totalSwitches +
-                                            (widget.routerDetails.selectedFan!
-                                                    .isNotEmpty
-                                                ? 1
-                                                : 0);
-                                    i++) {
-                                  final uri =
-                                      "${widget.routerDetails.iPAddress}/getSwitchcmd$i";
-                                  final payload = {
-                                    "Lock_id": widget.routerDetails.switchID,
-                                    "lock_passkey":
-                                        widget.routerDetails.switchPasskey,
-                                    "lock_cmd$i": (widget.routerDetails
-                                                .selectedFan!.isNotEmpty &&
-                                            i == totalSwitches + 1)
-                                        ? (value ? "HIGH" : "OFF")
-                                        : (value ? "ON$i" : "OFF$i"),
-                                  };
-
-                                  apiCalls.add(
-                                    ApiConnect.hitApiPost(uri, payload)
-                                        .timeout(const Duration(seconds: 1))
-                                        .then((_) =>
-                                            debugPrint(value ? "ON" : "OFF"))
-                                        .catchError((e) => debugPrint(
-                                            "Error on switch $i: $e")),
-                                  );
-                                }
-
-                                setState(() {
-                                  switchOn = value;
-                                });
-
-                                await Future.wait(apiCalls);
-                                await updateSwitch();
-                              } catch (e) {
-                                debugPrint('Local API call timed out.');
-                              }
+                              await Future.wait(apiCalls);
+                              await updateSwitch();
+                            } catch (e) {
+                              debugPrint('Local API call timed out.');
                             }
                           },
                           value: switchOn,
@@ -263,7 +251,6 @@ class _RouterOnOffState extends State<RouterOnOff> {
                               Theme.of(context).appColors.redButton,
                           inactiveTrackColor: Theme.of(context).appColors.red,
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -278,8 +265,8 @@ class _RouterOnOffState extends State<RouterOnOff> {
                     if (snapshot.hasError) {
                       return const Text("ERROR");
                     }
-                    return ListView.separated(
-                      padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+                    return GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: snapshot.data?.length ?? 0,
@@ -294,16 +281,101 @@ class _RouterOnOffState extends State<RouterOnOff> {
                           wifiName: _connectionStatus,
                         );
                       },
-                      separatorBuilder: (BuildContext context, int index) {
-                        return SizedBox(height: width * 0.03);
-                      },
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
+                      ),
                     );
                   }),
               if (widget.routerDetails.selectedFan != null &&
                   widget.routerDetails.selectedFan!.isNotEmpty) ...[
+                // Container(
+                //   padding: const EdgeInsets.all(20),
+                //   margin: const EdgeInsets.all(15),
+                //   decoration: BoxDecoration(
+                //     gradient: const LinearGradient(
+                //       colors: [
+                //         Colors.blueAccent,
+                //         Colors.lightBlueAccent,
+                //         Colors.greenAccent,
+                //       ],
+                //       begin: Alignment.topLeft,
+                //       end: Alignment.bottomRight,
+                //     ),
+                //     borderRadius: BorderRadius.circular(20),
+                //     boxShadow: const [
+                //       BoxShadow(
+                //         color: Colors.black26,
+                //         spreadRadius: 2,
+                //         blurRadius: 6,
+                //         offset: Offset(2, 2),
+                //       ),
+                //     ],
+                //   ),
+                //   child: Column(
+                //     children: [
+                //       Row(
+                //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //         children: [
+                //           Text(
+                //             widget.routerDetails.selectedFan ?? "No Name",
+                //             style: TextStyle(
+                //               color: Colors.white,
+                //               fontSize: width * 0.05,
+                //               fontWeight: FontWeight.bold,
+                //             ),
+                //           ),
+                //           const SizedBox(width: 10),
+                //           const Icon(
+                //             FontAwesomeIcons.fan,
+                //             size: 35,
+                //             color: Colors.deepPurpleAccent,
+                //           )
+                //         ],
+                //       ),
+                //       CupertinoSlidingSegmentedControl<String>(
+                //         groupValue: selectedControl,
+                //         backgroundColor: Colors.transparent,
+                //         thumbColor: const Color(0xff2cd2ec),
+                //         children: {
+                //           for (var control in controls)
+                //             control: Text(
+                //               control,
+                //               style: const TextStyle(
+                //                 color: Colors.white,
+                //                 fontSize: 18,
+                //                 fontWeight: FontWeight.bold,
+                //               ),
+                //             ),
+                //         },
+                //         onValueChanged: (value) async {
+                //           if (!_connectionStatus
+                //                   .contains(widget.routerDetails.routerName) &&
+                //               !widget.routerDetails.routerName
+                //                   .contains(_connectionStatus)) {
+                //             showToast(
+                //               context,
+                //               "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed",
+                //             );
+                //             setState(() {});
+                //             return;
+                //           }
+                //           setState(() {
+                //             selectedControl = value!;
+                //           });
+                //           debugPrint(value);
+                //           await sendFanCommand(value!);
+                //         },
+                //       ),
+                //     ],
+                //   ),
+                // )
                 Container(
-                  padding: const EdgeInsets.all(20),
-                  margin: const EdgeInsets.all(15),
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [
@@ -314,7 +386,7 @@ class _RouterOnOffState extends State<RouterOnOff> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     boxShadow: const [
                       BoxShadow(
                         color: Colors.black26,
@@ -325,17 +397,19 @@ class _RouterOnOffState extends State<RouterOnOff> {
                     ],
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             widget.routerDetails.selectedFan ?? "No Name",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: width * 0.05,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                    color:
+                                        Theme.of(context).appColors.background),
                           ),
                           const SizedBox(width: 10),
                           const Icon(
@@ -345,22 +419,50 @@ class _RouterOnOffState extends State<RouterOnOff> {
                           )
                         ],
                       ),
-                      CupertinoSlidingSegmentedControl<String>(
-                        groupValue: selectedControl,
-                        backgroundColor: Colors.transparent,
-                        thumbColor: const Color(0xff2cd2ec),
-                        children: {
-                          for (var control in controls)
-                            control: Text(
-                              control,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                        },
-                        onValueChanged: (value) async {
+                      Divider(
+                        color: Theme.of(context).appColors.background,
+                      ),
+                      SleekCircularSlider(
+                        min: 0,
+                        max: controls.length.toDouble() - 1,
+                        initialValue:
+                            controls.indexOf(selectedControl).toDouble(),
+                        appearance: CircularSliderAppearance(
+                          size: 150,
+                          customWidths: CustomSliderWidths(
+                            trackWidth: 8,
+                            progressBarWidth: 15,
+                            handlerSize: 12,
+                          ),
+                          customColors: CustomSliderColors(
+                            trackColors: [
+                              Colors.blueAccent,
+                              Colors.lightBlueAccent,
+                              Colors.greenAccent,
+                            ],
+                            progressBarColors: [
+                              Colors.blueAccent,
+                              Colors.lightBlueAccent,
+                              Colors.greenAccent,
+                            ],
+                            dotColor: Theme.of(context).appColors.background,
+                            shadowColor: Colors.black26,
+                          ),
+                          infoProperties: InfoProperties(
+                            mainLabelStyle: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
+                                .copyWith(
+                                    color:
+                                        Theme.of(context).appColors.background),
+                            modifier: (value) {
+                              final index = value.round();
+                              return controls[index]; // show control name
+                            },
+                          ),
+                        ),
+                        onChangeEnd: (value) async {
+                          final control = controls[value.round()];
                           if (!_connectionStatus
                                   .contains(widget.routerDetails.routerName) &&
                               !widget.routerDetails.routerName
@@ -372,10 +474,10 @@ class _RouterOnOffState extends State<RouterOnOff> {
                             return;
                           }
                           setState(() {
-                            selectedControl = value!;
+                            selectedControl = control;
                           });
-                          debugPrint(value);
-                          await sendFanCommand(value!);
+                          debugPrint(control);
+                          await sendFanCommand(control);
                         },
                       ),
                     ],

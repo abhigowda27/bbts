@@ -90,20 +90,12 @@ class _SwitchCardState extends State<SwitchCard> {
             children: [
               Text(
                 "Switch ID: ",
-                style: TextStyle(
-                  fontSize: width * 0.04,
-                  color: Theme.of(context).appColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
                   widget.switchDetails.switchId,
-                  style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.w300,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
             ],
@@ -112,20 +104,12 @@ class _SwitchCardState extends State<SwitchCard> {
             children: [
               Text(
                 "Switch Name: ",
-                style: TextStyle(
-                  fontSize: width * 0.04,
-                  color: Theme.of(context).appColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
                   widget.switchDetails.switchSSID,
-                  style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.w300,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
             ],
@@ -142,11 +126,7 @@ class _SwitchCardState extends State<SwitchCard> {
                 children: [
                   Text(
                     "Selected Switches: ${widget.switchDetails.switchTypes.length}",
-                    style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Icon(
                     isExpanded
@@ -173,20 +153,12 @@ class _SwitchCardState extends State<SwitchCard> {
                       children: [
                         Text(
                           '${index + 1}: ',
-                          style: TextStyle(
-                            fontSize: width * 0.04,
-                            color: Theme.of(context).appColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                         Expanded(
                           child: Text(
                             switchType,
-                            style: TextStyle(
-                              fontSize: width * 0.04,
-                              color: Theme.of(context).appColors.textPrimary,
-                              fontWeight: FontWeight.w300,
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
                         if (widget.showOptions)
@@ -204,14 +176,25 @@ class _SwitchCardState extends State<SwitchCard> {
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.pop(context, false),
-                                      child: const Text("Cancel"),
+                                      child: Text(
+                                        "Cancel",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
+                                      ),
                                     ),
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.pop(context, true),
-                                      child: const Text(
+                                      child: Text(
                                         "Delete",
-                                        style: TextStyle(color: Colors.red),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .appColors
+                                                    .redButton),
                                       ),
                                     ),
                                   ],
@@ -241,20 +224,12 @@ class _SwitchCardState extends State<SwitchCard> {
               children: [
                 Text(
                   "Selected fan: ",
-                  style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 Flexible(
                   child: Text(
                     widget.switchDetails.selectedFan!,
-                    style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
               ],
@@ -264,10 +239,7 @@ class _SwitchCardState extends State<SwitchCard> {
             children: [
               Text(
                 "Switch PassKey : ",
-                style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.w600),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
@@ -275,10 +247,7 @@ class _SwitchCardState extends State<SwitchCard> {
                       ? List.generate(widget.switchDetails.switchPassKey.length,
                           (index) => "*").join()
                       : widget.switchDetails.switchPassKey,
-                  style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w300),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               )
             ],
@@ -287,10 +256,7 @@ class _SwitchCardState extends State<SwitchCard> {
             children: [
               Text(
                 "Switch Password: ",
-                style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.w600),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
@@ -299,10 +265,7 @@ class _SwitchCardState extends State<SwitchCard> {
                           widget.switchDetails.switchPassword.length,
                           (index) => "*").join()
                       : widget.switchDetails.switchPassword,
-                  style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w300),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               )
             ],
@@ -325,16 +288,8 @@ class _SwitchCardState extends State<SwitchCard> {
                               return AlertDialog(
                                 title: Text(
                                   "Delete Switch",
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .appColors
-                                          .textPrimary),
                                 ),
                                 content: Text(
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .appColors
-                                            .textPrimary),
                                     'Are you sure you want to delete "${widget.switchDetails.switchSSID}"'),
                                 actions: [
                                   Row(

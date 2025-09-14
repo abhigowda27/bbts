@@ -61,10 +61,8 @@ class _ConnectToSwitchWidgetState extends State<ConnectToGroupWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final width = screenSize.width;
     return Scaffold(
-      appBar: AppBar(title: const Text("GROUP")),
+      appBar: AppBar(title: Text(widget.groupName)),
       body: Column(
         children: [
           const SizedBox(
@@ -120,22 +118,22 @@ class _ConnectToSwitchWidgetState extends State<ConnectToGroupWidget> {
                               )));
                 }),
           ],
-          Align(
-            alignment: Alignment.center,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Text(
               'WIFI is connected to Wifi Name',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: width * 0.05),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
-          Align(
-            alignment: Alignment.center,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Text(
-              _connectionStatus,
-              style: TextStyle(
-                  color: Theme.of(context).appColors.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: width * 0.05),
+              '"$_connectionStatus"',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineMedium!
+                  .copyWith(color: Theme.of(context).appColors.primary),
             ),
           ),
         ],

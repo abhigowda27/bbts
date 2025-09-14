@@ -1,6 +1,7 @@
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../controllers/apis.dart';
 import '../../models/router_model.dart';
@@ -45,76 +46,75 @@ class _RouterListCardState extends State<RouterListCard> {
             offset: const Offset(5, 5),
           ),
         ],
-        color: Theme.of(context).appColors.buttonBackground,
+        color: Theme.of(context).appColors.buttonBackground.withOpacity(0.2),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          Icon(
+            FontAwesomeIcons.solidLightbulb,
+            color: switchOn ? Colors.yellow : Colors.grey,
+            size: 40,
+          ),
           Flexible(
             child: Text(
               widget.routerDetails.switchTypes[widget.index],
-              style: TextStyle(
-                fontSize: 20,
-                color: Theme.of(context).appColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Transform.scale(
-            scale: 1,
-            child: Switch(
-              onChanged: (value) async {
-                if (!widget.wifiName
-                        .contains(widget.routerDetails.routerName) &&
-                    !widget.routerDetails.routerName
-                        .contains(widget.wifiName)) {
-                  showToast(
-                      "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed");
-                  return;
-                }
-                try {
-                  if (value) {
-                    ApiConnect.hitApiPost(
-                        "${widget.routerDetails.iPAddress}/getSwitchcmd$slNo", {
-                      "Lock_id": widget.routerDetails.switchID,
-                      "lock_passkey": widget.routerDetails.switchPasskey,
-                      "lock_cmd$slNo": "ON$slNo"
-                    });
-                    setState(() {
-                      switchOn = true;
-                    });
-                  } else if (!value) {
-                    ApiConnect.hitApiPost(
-                        "${widget.routerDetails.iPAddress}/getSwitchcmd$slNo", {
-                      // "192.168.1.1/getSwitchcmd",
+          Switch(
+            onChanged: (value) async {
+              if (!widget.wifiName.contains(widget.routerDetails.routerName) &&
+                  !widget.routerDetails.routerName.contains(widget.wifiName)) {
+                showToast(
+                    "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed");
+                return;
+              }
+              try {
+                if (value) {
+                  ApiConnect.hitApiPost(
+                      "${widget.routerDetails.iPAddress}/getSwitchcmd$slNo", {
+                    "Lock_id": widget.routerDetails.switchID,
+                    "lock_passkey": widget.routerDetails.switchPasskey,
+                    "lock_cmd$slNo": "ON$slNo"
+                  });
+                  setState(() {
+                    switchOn = true;
+                  });
+                } else if (!value) {
+                  ApiConnect.hitApiPost(
+                      "${widget.routerDetails.iPAddress}/getSwitchcmd$slNo", {
+                    // "192.168.1.1/getSwitchcmd",
 
-                      "Lock_id": widget.routerDetails.switchID,
-                      "lock_passkey": widget.routerDetails.switchPasskey,
-                      "lock_cmd$slNo": "OFF$slNo"
-                    });
-                    setState(() {
-                      switchOn = false;
-                    });
-                  } else {}
-                } on DioException catch (e) {
-                  final scaffold = ScaffoldMessenger.of(context);
-                  scaffold.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          "Unable to perform. Try Again. Error: ${e.message}"),
-                    ),
-                  );
-                } catch (e) {
-                  debugPrint(e.toString());
-                }
-              },
-              value: switchOn,
-              activeColor: Theme.of(context).appColors.greenButton,
-              activeTrackColor: Theme.of(context).appColors.green,
-              inactiveThumbColor: Theme.of(context).appColors.redButton,
-              inactiveTrackColor: Theme.of(context).appColors.red,
-            ),
+                    "Lock_id": widget.routerDetails.switchID,
+                    "lock_passkey": widget.routerDetails.switchPasskey,
+                    "lock_cmd$slNo": "OFF$slNo"
+                  });
+                  setState(() {
+                    switchOn = false;
+                  });
+                } else {}
+              } on DioException catch (e) {
+                final scaffold = ScaffoldMessenger.of(context);
+                scaffold.showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        "Unable to perform. Try Again. Error: ${e.message}"),
+                  ),
+                );
+              } catch (e) {
+                debugPrint(e.toString());
+              }
+            },
+            value: switchOn,
+            activeColor: Theme.of(context).appColors.greenButton,
+            activeTrackColor: Theme.of(context).appColors.green,
+            inactiveThumbColor: Theme.of(context).appColors.redButton,
+            inactiveTrackColor: Theme.of(context).appColors.red,
           ),
         ],
       ),

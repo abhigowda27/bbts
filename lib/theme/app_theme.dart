@@ -10,7 +10,7 @@ ThemeData lightTheme() {
     appBarTheme: AppBarTheme(
       centerTitle: true,
       titleTextStyle: TextStyle(
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.bold,
           color: lightAppColors.background,
           fontSize: 24),
       backgroundColor: lightAppColors.primary,
@@ -20,7 +20,7 @@ ThemeData lightTheme() {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        foregroundColor: lightAppColors.buttonText,
+        foregroundColor: lightAppColors.primary,
       ),
     ),
     dialogTheme: DialogTheme(
@@ -47,6 +47,68 @@ ThemeData lightTheme() {
         foregroundColor: lightAppColors.buttonText,
       ),
     ),
+    textTheme: TextTheme(
+      displayLarge: TextStyle(
+          fontSize: 57,
+          fontWeight: FontWeight.bold,
+          color: lightAppColors.textPrimary),
+      displayMedium: TextStyle(
+          fontSize: 45,
+          fontWeight: FontWeight.w600,
+          color: lightAppColors.textPrimary),
+      displaySmall: TextStyle(
+          fontSize: 36,
+          fontWeight: FontWeight.w500,
+          color: lightAppColors.textPrimary),
+      headlineLarge: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: lightAppColors.textPrimary),
+      headlineMedium: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w600,
+          color: lightAppColors.textPrimary),
+      headlineSmall: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w500,
+          color: lightAppColors.textPrimary),
+      titleLarge: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w500,
+          color: lightAppColors.textPrimary),
+      titleMedium: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: lightAppColors.textPrimary),
+      titleSmall: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: lightAppColors.textSecondary),
+      bodyLarge: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: lightAppColors.textSecondary),
+      bodyMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+          color: lightAppColors.textSecondary),
+      bodySmall: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.normal,
+          color: lightAppColors.textSecondary),
+      labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: lightAppColors.primary),
+      labelMedium: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: lightAppColors.primary),
+      labelSmall: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w400,
+          color: lightAppColors.grey),
+    ),
   );
 }
 
@@ -72,6 +134,66 @@ ThemeData darkTheme() {
         backgroundColor: darkAppColors.buttonBackground,
         foregroundColor: darkAppColors.buttonText,
       ),
+    ),
+    textTheme: TextTheme(
+      displayLarge: TextStyle(
+          fontSize: 57,
+          fontWeight: FontWeight.bold,
+          color: darkAppColors.textPrimary),
+      displayMedium: TextStyle(
+          fontSize: 45,
+          fontWeight: FontWeight.w600,
+          color: darkAppColors.textPrimary),
+      displaySmall: TextStyle(
+          fontSize: 36,
+          fontWeight: FontWeight.w500,
+          color: darkAppColors.textPrimary),
+      headlineLarge: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: darkAppColors.textPrimary),
+      headlineMedium: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w600,
+          color: darkAppColors.textPrimary),
+      headlineSmall: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w500,
+          color: darkAppColors.textPrimary),
+      titleLarge: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: darkAppColors.textPrimary),
+      titleMedium: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: darkAppColors.textSecondary),
+      titleSmall: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: darkAppColors.textSecondary),
+      bodyLarge: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: darkAppColors.textPrimary),
+      bodyMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+          color: darkAppColors.textSecondary),
+      bodySmall: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.normal,
+          color: darkAppColors.textSecondary),
+      labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: darkAppColors.primary),
+      labelMedium: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: darkAppColors.primary),
+      labelSmall: TextStyle(
+          fontSize: 11, fontWeight: FontWeight.w400, color: darkAppColors.grey),
     ),
   );
 }

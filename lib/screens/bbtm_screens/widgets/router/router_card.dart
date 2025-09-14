@@ -24,8 +24,8 @@ class RouterCard extends StatefulWidget {
   final bool showOptions;
 
   const RouterCard({
-    required this.routerDetails,
     this.showOptions = true,
+    required this.routerDetails,
     super.key,
   });
 
@@ -105,18 +105,12 @@ class _RouterCardState extends State<RouterCard> {
             children: [
               Text(
                 "Switch ID : ",
-                style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
                   widget.routerDetails.switchID,
-                  style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w400),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               )
             ],
@@ -125,18 +119,12 @@ class _RouterCardState extends State<RouterCard> {
             children: [
               Text(
                 "Switch Name : ",
-                style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
                   widget.routerDetails.switchName,
-                  style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w400),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               )
             ],
@@ -145,18 +133,12 @@ class _RouterCardState extends State<RouterCard> {
             children: [
               Text(
                 "Router Name : ",
-                style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
                   widget.routerDetails.routerName,
-                  style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w400),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               )
             ],
@@ -176,11 +158,7 @@ class _RouterCardState extends State<RouterCard> {
                     children: [
                       Text(
                         "Selected Switches: ${widget.routerDetails.switchTypes.length}",
-                        style: TextStyle(
-                          fontSize: width * 0.04,
-                          color: Theme.of(context).appColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       Icon(
                         isExpanded
@@ -204,54 +182,57 @@ class _RouterCardState extends State<RouterCard> {
                         children: [
                           Text(
                             '${index + 1}: ',
-                            style: TextStyle(
-                              fontSize: width * 0.04,
-                              color: Theme.of(context).appColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           Expanded(
                             child: Text(
                               switchType,
-                              style: TextStyle(
-                                fontSize: width * 0.04,
-                                color: Theme.of(context).appColors.textPrimary,
-                                fontWeight: FontWeight.w300,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ),
                           if (widget.showOptions)
                             IconButton(
+                              padding: const EdgeInsets.all(0),
                               icon: const Icon(Icons.delete_outline_rounded,
                                   color: Colors.red),
                               onPressed: () async {
                                 final confirm = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title: Text("Delete Switch Type",
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .appColors
-                                                .textPrimary)),
+                                    title: Text(
+                                      "Delete Switch Type",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
                                     content: Text(
                                       "Are you sure you want to delete \"$switchType\" from this router?",
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .appColors
-                                              .textPrimary),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium,
                                     ),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.pop(context, false),
-                                        child: const Text("Cancel"),
+                                        child: Text("Cancel",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium),
                                       ),
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.pop(context, true),
-                                        child: const Text("Delete",
-                                            style:
-                                                TextStyle(color: Colors.red)),
+                                        child: Text(
+                                          "Delete",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .appColors
+                                                      .redButton),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -284,20 +265,12 @@ class _RouterCardState extends State<RouterCard> {
               children: [
                 Text(
                   "Selected fan: ",
-                  style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 Flexible(
                   child: Text(
                     widget.routerDetails.selectedFan!,
-                    style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w300,
-                    ),
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
               ],
@@ -307,10 +280,7 @@ class _RouterCardState extends State<RouterCard> {
             children: [
               Text(
                 "Switch PassKey : ",
-                style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
@@ -318,10 +288,7 @@ class _RouterCardState extends State<RouterCard> {
                       ? List.generate(widget.routerDetails.switchPasskey.length,
                           (index) => "*").join()
                       : widget.routerDetails.switchPasskey,
-                  style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w400),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               )
             ],
@@ -330,10 +297,7 @@ class _RouterCardState extends State<RouterCard> {
             children: [
               Text(
                 "Router Password: ",
-                style: TextStyle(
-                    fontSize: width * 0.04,
-                    color: Theme.of(context).appColors.textPrimary,
-                    fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               Flexible(
                 child: Text(
@@ -342,10 +306,7 @@ class _RouterCardState extends State<RouterCard> {
                           widget.routerDetails.routerPassword.length,
                           (index) => "*").join()
                       : widget.routerDetails.routerPassword,
-                  style: TextStyle(
-                      fontSize: width * 0.04,
-                      color: Theme.of(context).appColors.textPrimary,
-                      fontWeight: FontWeight.w400),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               )
             ],
@@ -365,27 +326,27 @@ class _RouterCardState extends State<RouterCard> {
                           context: context,
                           builder: (cont) {
                             return AlertDialog(
-                              title: Text('Delete Router',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .appColors
-                                          .textPrimary)),
-                              content: Text('This will delete the Router',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .appColors
-                                          .textPrimary)),
+                              title: Text(
+                                'Delete Router',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                        color: Theme.of(context)
+                                            .appColors
+                                            .redButton),
+                              ),
+                              content: Text(
+                                'This will delete the Router',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
                               actions: [
                                 OutlinedButton(
                                   onPressed: () {
                                     Navigator.pop(context);
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     'CANCEL',
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .appColors
-                                            .primary),
                                   ),
                                 ),
                                 OutlinedButton(
@@ -402,12 +363,8 @@ class _RouterCardState extends State<RouterCard> {
                                           false, //if you want to disable back feature set to false
                                     );
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     'OK',
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .appColors
-                                            .primary),
                                   ),
                                 ),
                               ],

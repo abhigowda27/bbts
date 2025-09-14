@@ -103,19 +103,18 @@ class _GroupFanSwitchControlState extends State<GroupFanSwitchControl> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: const EdgeInsets.all(24),
+                margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.symmetric(
                     vertical: 10.0, horizontal: 16.0),
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.shade400,
-                      spreadRadius: 5,
+                      color: Colors.grey.withOpacity(0.2),
                       blurRadius: 7,
                       offset: const Offset(5, 5),
                     ),
                   ],
-                  color: Theme.of(context).appColors.primary,
+                  color: Theme.of(context).appColors.primary.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -123,15 +122,12 @@ class _GroupFanSwitchControlState extends State<GroupFanSwitchControl> {
                   children: [
                     Text(
                       widget.groupName,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: width * 0.05,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Theme.of(context).appColors.background),
                     ),
                     Icon(
                       FontAwesomeIcons.fan,
-                      size: 35,
+                      size: width * 0.1,
                       color: Theme.of(context).appColors.background,
                     ),
                     FutureBuilder<List<RouterDetails>>(

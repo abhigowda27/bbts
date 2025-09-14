@@ -92,13 +92,13 @@ class _GroupSwitchOnOffState extends State<GroupSwitchOnOff> {
       child: Scaffold(
         appBar: AppBar(title: const Text("GROUP SWITCH")),
         body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           physics: const BouncingScrollPhysics(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: const EdgeInsets.all(24),
                 padding: const EdgeInsets.symmetric(
                     vertical: 10.0, horizontal: 16.0),
                 decoration: BoxDecoration(
@@ -109,7 +109,7 @@ class _GroupSwitchOnOffState extends State<GroupSwitchOnOff> {
                       offset: const Offset(5, 5),
                     ),
                   ],
-                  color: Theme.of(context).appColors.primary,
+                  color: Theme.of(context).appColors.primary.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -189,7 +189,7 @@ class _GroupSwitchOnOffState extends State<GroupSwitchOnOff> {
                     return const Text("ERROR");
                   }
                   return ListView.separated(
-                    padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: snapshot.data?.length ?? 0,
@@ -202,7 +202,7 @@ class _GroupSwitchOnOffState extends State<GroupSwitchOnOff> {
                       return const SizedBox.shrink();
                     },
                     separatorBuilder: (BuildContext context, int index) {
-                      return SizedBox(height: width * 0.03);
+                      return const SizedBox(height: 15);
                     },
                   );
                 },

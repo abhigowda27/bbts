@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../../../../controllers/apis.dart';
 import '../../../tabs_page.dart';
@@ -171,7 +172,7 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                       offset: const Offset(5, 5),
                     ),
                   ],
-                  color: Theme.of(context).appColors.primary,
+                  color: Theme.of(context).appColors.primary.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -290,8 +291,15 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                   if (snapshot.hasError) {
                     return const Text("ERROR");
                   }
-                  return ListView.separated(
-                    padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+                  return GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: snapshot.data?.length ?? 0,
@@ -307,16 +315,13 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                         wifiName: _connectionStatus,
                       );
                     },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return SizedBox(height: width * 0.03);
-                    },
                   );
                 }),
             if (widget.switchDetails.selectedFan != null &&
                 widget.switchDetails.selectedFan!.isNotEmpty) ...[
               Container(
-                padding: const EdgeInsets.all(20),
-                margin: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [
@@ -327,7 +332,7 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(10),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
@@ -351,29 +356,91 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                           ),
                         ),
                         const SizedBox(width: 10),
-                        Icon(
-                          Icons.wind_power_outlined,
-                          size: width * 0.1,
-                          color: Colors.white,
-                        ),
+                        const Icon(
+                          FontAwesomeIcons.fan,
+                          size: 35,
+                          color: Colors.deepPurpleAccent,
+                        )
                       ],
                     ),
-                    CupertinoSlidingSegmentedControl<String>(
-                      groupValue: selectedControl,
-                      backgroundColor: Colors.transparent,
-                      thumbColor: const Color(0xff2cd2ec),
-                      children: {
-                        for (var control in controls)
-                          control: Text(
-                            control,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                      },
-                      onValueChanged: (value) async {
+                    Divider(
+                      color: Theme.of(context).appColors.background,
+                    ),
+                    // CupertinoSlidingSegmentedControl<String>(
+                    //   groupValue: selectedControl,
+                    //   backgroundColor: Colors.transparent,
+                    //   thumbColor: const Color(0xff2cd2ec),
+                    //   children: {
+                    //     for (var control in controls)
+                    //       control: Text(
+                    //         control,
+                    //         style: const TextStyle(
+                    //           color: Colors.white,
+                    //           fontSize: 18,
+                    //           fontWeight: FontWeight.bold,
+                    //         ),
+                    //       ),
+                    //   },
+                    //   onValueChanged: (value) async {
+                    //     if (!_connectionStatus
+                    //             .contains(widget.switchDetails.switchSSID) &&
+                    //         !widget.switchDetails.switchSSID
+                    //             .contains(_connectionStatus)) {
+                    //       showToast(
+                    //         context,
+                    //         "Please Connect WIFI to ${widget.switchDetails.switchSSID} to proceed",
+                    //       );
+                    //       setState(() {});
+                    //       return;
+                    //     }
+                    //     setState(() {
+                    //       selectedControl = value!;
+                    //     });
+                    //     debugPrint(value);
+                    //     await sendFanCommand(value!);
+                    //   },
+                    // ),
+                    SleekCircularSlider(
+                      min: 0,
+                      max: controls.length.toDouble() - 1,
+                      initialValue:
+                          controls.indexOf(selectedControl).toDouble(),
+                      appearance: CircularSliderAppearance(
+                        size: 150,
+                        customWidths: CustomSliderWidths(
+                          trackWidth: 8,
+                          progressBarWidth: 15,
+                          handlerSize: 12,
+                        ),
+                        customColors: CustomSliderColors(
+                          trackColors: [
+                            Colors.blueAccent,
+                            Colors.lightBlueAccent,
+                            Colors.greenAccent,
+                          ],
+                          progressBarColors: [
+                            Colors.blueAccent,
+                            Colors.lightBlueAccent,
+                            Colors.greenAccent,
+                          ],
+                          dotColor: Theme.of(context).appColors.background,
+                          shadowColor: Colors.black26,
+                        ),
+                        infoProperties: InfoProperties(
+                          mainLabelStyle: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(
+                                  color:
+                                      Theme.of(context).appColors.background),
+                          modifier: (value) {
+                            final index = value.round();
+                            return controls[index]; // show control name
+                          },
+                        ),
+                      ),
+                      onChangeEnd: (value) async {
+                        final control = controls[value.round()];
                         if (!_connectionStatus
                                 .contains(widget.switchDetails.switchSSID) &&
                             !widget.switchDetails.switchSSID
@@ -385,10 +452,10 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                           return;
                         }
                         setState(() {
-                          selectedControl = value!;
+                          selectedControl = control;
                         });
-                        debugPrint(value);
-                        await sendFanCommand(value!);
+                        debugPrint(control);
+                        await sendFanCommand(control);
                       },
                     ),
                   ],
