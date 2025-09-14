@@ -18,9 +18,6 @@ A Flutter-based mobile application that allows users to **scan, install, and con
 - 📊 **Device Status**  
   View real-time status (ON/OFF, connected/disconnected) of all your switches.
 
-- 🔔 **Notifications**  
-  Get alerts when devices are connected, disconnected, or when actions are performed.
-
 - 🎨 **Modern UI**  
   Clean, intuitive, and responsive interface built with Flutter.
 
