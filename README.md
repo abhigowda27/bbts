@@ -1,16 +1,39 @@
-# bbts_server
+# 🏠 BBTM Smart Switch Controller
 
-A new Flutter project.
+A Flutter-based mobile application that allows users to **scan, install, and control smart switches** seamlessly through **QR code scanning**, **local WiFi router**, and **cloud connectivity**.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## ✨ Features
 
-A few resources to get you started if this is your first Flutter project:
+- 📷 **QR Code Scanning**  
+  Easily add and install switches by scanning their unique QR codes.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 📶 **Local WiFi Control**  
+  Control connected switches directly over the same WiFi router for fast and reliable performance.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- ☁️ **Cloud Connectivity**  
+  Manage and control your devices remotely, even when you are not on the same network.
+
+- 📊 **Device Status**  
+  View real-time status (ON/OFF, connected/disconnected) of all your switches.
+
+- 🔔 **Notifications**  
+  Get alerts when devices are connected, disconnected, or when actions are performed.
+
+- 🎨 **Modern UI**  
+  Clean, intuitive, and responsive interface built with Flutter.
+
+## 🚀 Getting Started
+
+### Prerequisites
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (>=3.0.0)
+- Android Studio / Xcode for mobile builds
+- A GitHub account and Firebase/Cloud backend (optional for cloud features)
+
+### Installation
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/abhigowda27/bbtm.git
+   cd bbtm
