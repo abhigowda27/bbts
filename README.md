@@ -32,5 +32,5 @@ A Flutter-based mobile application that allows users to **scan, install, and con
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/abhigowda27/bbtm.git
-   cd bbtm
+   git clone https://github.com/abhigowda27/bbts.git
+   cd bbts
