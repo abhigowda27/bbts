@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:open_settings/open_settings.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../../controllers/permission.dart';
 import '../controllers/wifi.dart';
 import 'groups/group_page.dart';
 
@@ -36,11 +35,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<GridItem> lists = [
-    // GridItem(
-    //     name: 'Users',
-    //     icon: "assets/images/user.png",
-    //     navigateTo: const ContactsPage(),
-    //     color: Colors.lightBlue),
     GridItem(
         name: 'Switches',
         icon: "assets/images/switch.png",
@@ -56,21 +50,11 @@ class _HomePageState extends State<HomePage> {
         icon: "assets/images/group_icon.png",
         navigateTo: const GroupingPage(),
         color: Colors.green),
-    // GridItem(
-    //     name: 'MACs Page',
-    //     icon: "assets/images/MAC.png",
-    //     navigateTo: const MacsPage(),
-    //     color: null),
     GridItem(
       name: 'Cloud',
       icon: "assets/images/cloud-connect.png",
       navigateTo: const SwitchCloudPage(),
     ),
-    // GridItem(
-    //     name: 'Settings',
-    //     icon: "assets/images/settings.png",
-    //     navigateTo: const SettingsPage(),
-    //     color: Colors.orange),
     GridItem(
         name: 'Help',
         icon: "assets/images/question-bubble.png",
@@ -84,9 +68,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    requestPermission(Permission.camera);
-    requestPermission(Permission.contacts);
-    requestPermission(Permission.location);
+    requestAllPermissions();
     _networkService = NetworkService();
     _initNetworkInfo();
     connectivitySubscription = _connectivity.onConnectivityChanged
@@ -94,6 +76,18 @@ class _HomePageState extends State<HomePage> {
       _updateConnectionStatus(results);
     });
     super.initState();
+  }
+
+  Future<void> requestAllPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.contacts,
+      Permission.location,
+    ].request();
+
+    statuses.forEach((permission, status) {
+      debugPrint("Permission: $permission, Status: $status");
+    });
   }
 
   @override

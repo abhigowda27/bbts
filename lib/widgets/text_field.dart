@@ -1,6 +1,5 @@
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -9,7 +8,6 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final TextInputType keyboardType;
-  final List<TextInputFormatter>? inputFormatters;
   final String? Function(String?)? validator;
   final void Function(String query)? onChanged;
   final Icon? prefixIcon;
@@ -20,7 +18,6 @@ class CustomTextField extends StatelessWidget {
     required this.hintText,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
-    this.inputFormatters,
     this.validator,
     this.maxLength,
     this.suffixIcon,
@@ -38,18 +35,15 @@ class CustomTextField extends StatelessWidget {
       maxLength: maxLength,
       onChanged: onChanged,
       keyboardType: keyboardType,
-      inputFormatters: inputFormatters ??
-          [FilteringTextInputFormatter.deny(RegExp(r'[<>{}$^%\[]'))],
       contextMenuBuilder: null,
-      style: TextStyle(color: Theme.of(context).appColors.textSecondary),
+      style: Theme.of(context).textTheme.titleSmall,
       decoration: InputDecoration(
           contentPadding: const EdgeInsets.all(10),
           hintText: hintText,
-          hintStyle: TextStyle(
-            color: Theme.of(context).appColors.textSecondary,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
+          hintStyle: Theme.of(context)
+              .textTheme
+              .titleSmall!
+              .copyWith(fontWeight: FontWeight.bold),
           enabledBorder: OutlineInputBorder(
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             borderSide: BorderSide(

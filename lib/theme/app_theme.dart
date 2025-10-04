@@ -67,7 +67,7 @@ ThemeData lightTheme() {
       headlineMedium: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.w600,
-          color: lightAppColors.textPrimary),
+          color: lightAppColors.textSecondary),
       headlineSmall: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w500,
