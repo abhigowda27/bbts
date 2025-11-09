@@ -3,10 +3,8 @@ import 'package:bbts_server/screens/bbtm_screens/controllers/storage.dart';
 import 'package:bbts_server/screens/bbtm_screens/models/router_model.dart';
 import 'package:bbts_server/screens/bbtm_screens/view/qr/gallery_qr.dart';
 import 'package:bbts_server/screens/bbtm_screens/view/qr/qr_view.dart';
-import 'package:bbts_server/screens/bbtm_screens/view/routers/connect_to_router.dart';
 import 'package:bbts_server/screens/bbtm_screens/widgets/router/router_card.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
-import 'package:bbts_server/widgets/text_field.dart';
 import 'package:flutter/material.dart';
 
 class RouterPage extends StatefulWidget {
@@ -127,18 +125,54 @@ class _RouterPageState extends State<RouterPage> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.only(
-                top: screenWidth * 0.06,
-                left: screenWidth * 0.06,
-                right: screenWidth * 0.06),
-            child: CustomTextField(
-              controller: _searchController,
-              hintText: 'Search Switch',
-              prefixIcon: const Icon(Icons.search),
-              onChanged: _filterRouters,
-            ),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(15),
+                    bottomRight: Radius.circular(15),
+                  ),
+                  color: Theme.of(context).appColors.primary,
+                ),
+                height: MediaQuery.of(context).size.height * 0.07,
+              ),
+              Positioned(
+                bottom: -25,
+                left: 16,
+                right: 16,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).appColors.background,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _filterRouters,
+                    decoration: InputDecoration(
+                      hintText: 'Search devices...',
+                      hintStyle: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 25),
           Expanded(
             child: _filteredRouters.isEmpty
                 ? CommonServices.noDataWidget()
@@ -149,19 +183,7 @@ class _RouterPageState extends State<RouterPage> {
                     itemBuilder: (context, index) {
                       final reversedIndex = _filteredRouters.length - 1 - index;
                       final routerDetails = _filteredRouters[reversedIndex];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ConnectToRouterPage(
-                                routerDetails: routerDetails,
-                              ),
-                            ),
-                          );
-                        },
-                        child: RouterCard(routerDetails: routerDetails),
-                      );
+                      return RouterCard(routerDetails: routerDetails);
                     },
                     separatorBuilder: (BuildContext context, int index) {
                       return const SizedBox(

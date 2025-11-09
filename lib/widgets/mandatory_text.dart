@@ -3,7 +3,7 @@ import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 
 Widget richTxt({required String text, bool isMandatory = true}) {
-  final context = navigatorKey?.currentContext;
+  final context = navigatorKey.currentContext;
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: RichText(

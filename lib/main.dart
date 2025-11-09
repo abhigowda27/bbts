@@ -37,7 +37,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-GlobalKey<NavigatorState>? navigatorKey = GlobalKey<NavigatorState>();
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.

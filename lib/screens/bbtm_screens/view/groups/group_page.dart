@@ -2,7 +2,6 @@ import 'package:bbts_server/common/common_services.dart';
 import 'package:bbts_server/screens/bbtm_screens/view/qr/gallery_qr.dart';
 import 'package:bbts_server/screens/bbtm_screens/view/qr/qr_view.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
-import 'package:bbts_server/widgets/text_field.dart';
 import 'package:flutter/material.dart';
 
 import '../../controllers/storage.dart';
@@ -98,18 +97,54 @@ class _GroupingPageState extends State<GroupingPage> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.only(
-                top: screenWidth * 0.06,
-                left: screenWidth * 0.06,
-                right: screenWidth * 0.06),
-            child: CustomTextField(
-              controller: _searchController,
-              hintText: 'Search by Group Name',
-              prefixIcon: const Icon(Icons.search),
-              onChanged: _filterGroups, // Call the filter function
-            ),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(15),
+                    bottomRight: Radius.circular(15),
+                  ),
+                  color: Theme.of(context).appColors.primary,
+                ),
+                height: MediaQuery.of(context).size.height * 0.07,
+              ),
+              Positioned(
+                bottom: -25,
+                left: 16,
+                right: 16,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).appColors.background,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _filterGroups,
+                    decoration: InputDecoration(
+                      hintText: 'Search devices...',
+                      hintStyle: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                      prefixIcon: Icon(Icons.search, color: Colors.grey),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 15),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 25),
           Expanded(
             child: _filteredGroups.isEmpty
                 ? CommonServices.noDataWidget()

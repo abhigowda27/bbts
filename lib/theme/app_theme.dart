@@ -4,7 +4,15 @@ import 'package:flutter/material.dart';
 ThemeData lightTheme() {
   return ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: const Color(0xFFDCF8F4),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: lightAppColors.primary.withOpacity(
+        0.8,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(50), // roundness
+      ),
+    ),
+    scaffoldBackgroundColor: const Color(0xFFFFFFFF),
     fontFamily: "OpenSans",
     extensions: const <ThemeExtension<dynamic>>[lightAppColors],
     appBarTheme: AppBarTheme(
@@ -115,7 +123,15 @@ ThemeData lightTheme() {
 ThemeData darkTheme() {
   return ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: const Color(0xFF2C3F3C),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: lightAppColors.primary.withOpacity(
+        0.8,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(50), // roundness
+      ),
+    ),
+    scaffoldBackgroundColor: const Color(0xFF374448),
     fontFamily: "OpenSans",
     extensions: const <ThemeExtension<dynamic>>[darkAppColors],
     appBarTheme: AppBarTheme(
@@ -199,12 +215,12 @@ ThemeData darkTheme() {
 }
 
 const lightAppColors = AppColors(
-  primary: Color(0xFF00BFA6), // A fresh teal for primary color
+  primary: Colors.lightBlueAccent, // A fresh teal for primary color
   background: Color(0xFFFDFDFD), // Soft white background
   textPrimary: Color(0xFF1C1C1E), // Near-black for good readability
   textSecondary: Color(0xFF6E6E73), // Neutral gray for secondary text
   buttonBackground:
-      Color(0xFF00C7BE), // Slightly lighter than primary for buttons
+      Colors.lightBlue, // Slightly lighter than primary for buttons
   buttonText: Color(0xFFFFFFFF), // White text for buttons
 
   // Additional
@@ -219,11 +235,11 @@ const lightAppColors = AppColors(
 );
 
 const darkAppColors = AppColors(
-  primary: Color(0xFF05806C), // Same vibrant teal for brand consistency
+  primary: Colors.blueAccent, // Same vibrant teal for brand consistency
   background: Color(0xFF121212), // Standard dark background (Material Dark)
   textPrimary: Color(0xFFD5D5D5), // White text for contrast
   textSecondary: Color(0xFFB0B0B0), // Light gray for less important text
-  buttonBackground: Color(0xFF0E795E), // Bright teal for button pop
+  buttonBackground: Colors.blue, // Bright teal for button pop
   buttonText: Color(0xFF000000), // Black text for high-contrast buttons
 
   // Additional

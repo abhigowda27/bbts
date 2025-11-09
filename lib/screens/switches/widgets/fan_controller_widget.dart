@@ -7,6 +7,7 @@ class FanSpeedControl extends StatefulWidget {
   final Function toggleSwitch;
   final int deviceType;
   final String? deviceId;
+  final String? fanStatus;
 
   const FanSpeedControl({
     super.key,
@@ -14,7 +15,8 @@ class FanSpeedControl extends StatefulWidget {
     required this.device,
     required this.toggleSwitch,
     required this.deviceType,
-    this.deviceId,
+    required this.deviceId,
+    required this.fanStatus,
   });
 
   @override
@@ -27,14 +29,35 @@ class _FanSpeedControlState extends State<FanSpeedControl> {
   @override
   void initState() {
     super.initState();
-    final keys = widget.fanStatusList.keys.toList();
-    final currentKey = widget.device["details"]["statusTxt"]?.toString();
-    int index = currentKey != null ? keys.indexOf(currentKey) : 0;
+    _updateCurrentValue();
+  }
 
-    // If not found, default to 0
+  /// 🌀 Update value whenever fanStatus or device details change
+  @override
+  void didUpdateWidget(covariant FanSpeedControl oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.fanStatus != oldWidget.fanStatus ||
+        widget.device["details"]["statusTxt"] !=
+            oldWidget.device["details"]["statusTxt"]) {
+      _updateCurrentValue();
+    }
+  }
+
+  /// 🔁 Compute current fan speed index based on fanStatus or device details
+  void _updateCurrentValue() {
+    final keys = widget.fanStatusList.keys.toList();
+    final currentKey =
+        widget.fanStatus ?? widget.device["details"]["statusTxt"]?.toString();
+
+    int index = keys.indexOf(currentKey ?? "");
+
+    // If key not found, default to 0
     if (index < 0) index = 0;
 
-    _currentValue = index.clamp(0, keys.length - 1).toDouble();
+    setState(() {
+      _currentValue = index.clamp(0, keys.length - 1).toDouble();
+    });
   }
 
   @override
@@ -70,12 +93,8 @@ class _FanSpeedControlState extends State<FanSpeedControl> {
             fontWeight: FontWeight.bold,
             foreground: Paint()
               ..shader = const LinearGradient(
-                colors: [
-                  Colors.purpleAccent,
-                  Colors.blueAccent,
-                ],
-              ).createShader(
-                  const Rect.fromLTWH(0, 0, 200, 70)), // gradient text
+                colors: [Colors.purpleAccent, Colors.blueAccent],
+              ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
             shadows: const [
               Shadow(
                 offset: Offset(2, 2),
@@ -86,7 +105,6 @@ class _FanSpeedControlState extends State<FanSpeedControl> {
           ),
           modifier: (value) {
             int index = value.round().clamp(0, keys.length - 1);
-
             return keys[index];
           },
         ),
