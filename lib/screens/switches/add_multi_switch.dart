@@ -82,7 +82,7 @@ class _AddMultiSwitchState extends State<AddMultiSwitch> {
                         flex: 7,
                         child: DropdownButtonFormField<String>(
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          value: _selectedSwitchType,
+                          initialValue: _selectedSwitchType,
                           onChanged: (newValue) {
                             setState(() {
                               _selectedSwitchType = newValue;

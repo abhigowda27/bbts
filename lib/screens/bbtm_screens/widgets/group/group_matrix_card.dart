@@ -165,7 +165,7 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
                     }
                   },
                   value: !switchOff,
-                  activeColor: Theme.of(context).appColors.greenButton,
+                  activeThumbColor: Theme.of(context).appColors.greenButton,
                   activeTrackColor: Theme.of(context).appColors.green,
                   inactiveThumbColor: Theme.of(context).appColors.redButton,
                   inactiveTrackColor: Theme.of(context).appColors.red,

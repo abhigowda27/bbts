@@ -170,7 +170,8 @@ class _GroupSwitchOnOffState extends State<GroupSwitchOnOff> {
                             });
                           },
                           value: isSwitchOn,
-                          activeColor: Theme.of(context).appColors.greenButton,
+                          activeThumbColor:
+                              Theme.of(context).appColors.greenButton,
                           activeTrackColor: Theme.of(context).appColors.green,
                           inactiveThumbColor:
                               Theme.of(context).appColors.redButton,

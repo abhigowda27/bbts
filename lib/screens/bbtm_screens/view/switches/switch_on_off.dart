@@ -271,7 +271,8 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                           await updateSwitch();
                         },
                         value: switchOn,
-                        activeColor: Theme.of(context).appColors.greenButton,
+                        activeThumbColor:
+                            Theme.of(context).appColors.greenButton,
                         activeTrackColor: Theme.of(context).appColors.green,
                         inactiveThumbColor:
                             Theme.of(context).appColors.redButton,

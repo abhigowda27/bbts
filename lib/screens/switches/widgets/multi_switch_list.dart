@@ -497,7 +497,7 @@ class _MultiDevicesWidgetState extends State<MultiDevicesWidget> {
                           ),
                           Switch.adaptive(
                             value: switchStates[device["uid"]] ?? false,
-                            activeColor:
+                            activeThumbColor:
                                 Theme.of(context).appColors.greenButton,
                             activeTrackColor: Theme.of(context).appColors.green,
                             inactiveThumbColor: Theme.of(context)
