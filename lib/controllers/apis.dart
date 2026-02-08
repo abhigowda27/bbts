@@ -17,10 +17,12 @@ class ApiConnect {
     return response.data;
   }
 
-  static Future<String> hitApiGet(url) async {
+  static Future<dynamic> hitApiGet(String url) async {
     debugPrint("Urls passing $url");
     final dio = Dio();
     final response = await dio.get(url);
+    debugPrint("Api Response $response");
+    debugPrint(response.data.toString());
     return response.data;
   }
 }

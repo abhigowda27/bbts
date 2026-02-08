@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:bbts_server/main.dart';
 import 'package:bbts_server/screens/bbtm_screens/view/help_page.dart';
 import 'package:bbts_server/screens/bbtm_screens/view/home_screen.dart';
@@ -10,7 +11,6 @@ import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:open_settings/open_settings.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../controllers/wifi.dart';
@@ -106,7 +106,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 child: ElevatedButton(
                   child: const Text("Go To Settings"),
                   onPressed: () async {
-                    await OpenSettings.openLocationSourceSetting();
+                    await AppSettings.openAppSettings(
+                        type: AppSettingsType.location);
                   },
                 ),
               ),
@@ -207,8 +208,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   onTap: () async {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => item.navigateTo,
+                      PageRouteBuilder(
+                        pageBuilder: (context, _, __) => item.navigateTo,
                       ),
                     );
                   },
@@ -249,7 +250,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           FloatingActionButton(
             heroTag: "wifi",
             onPressed: () {
-              OpenSettings.openWIFISetting();
+              AppSettings.openAppSettings(type: AppSettingsType.wifi);
             },
             backgroundColor: Theme.of(context).appColors.buttonBackground,
             child: const Icon(Icons.wifi_find),
@@ -258,7 +259,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           FloatingActionButton(
             heroTag: "location",
             onPressed: () {
-              OpenSettings.openLocationSourceSetting();
+              AppSettings.openAppSettings(type: AppSettingsType.location);
             },
             backgroundColor: Theme.of(context).appColors.buttonBackground,
             child: const Icon(Icons.location_on_rounded),

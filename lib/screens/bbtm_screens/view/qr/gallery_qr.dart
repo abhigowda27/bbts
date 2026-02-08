@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bbts_server/main.dart';
 import 'package:bbts_server/screens/bbtm_screens/controllers/storage.dart';
 import 'package:bbts_server/screens/bbtm_screens/models/group_model.dart';
 import 'package:bbts_server/screens/bbtm_screens/models/router_model.dart';
@@ -9,11 +10,9 @@ import 'package:bbts_server/screens/bbtm_screens/widgets/custom/toast.dart';
 import 'package:bbts_server/screens/bbtm_screens/widgets/group/group_card.dart';
 import 'package:bbts_server/screens/bbtm_screens/widgets/router/router_card.dart';
 import 'package:bbts_server/screens/bbtm_screens/widgets/switches/switches_card.dart';
-import 'package:bbts_server/screens/tabs_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:scan/scan.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class GalleryQRPage extends StatefulWidget {
   const GalleryQRPage({required this.type, super.key});
@@ -39,39 +38,48 @@ class _GalleryQRPageState extends State<GalleryQRPage> {
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    try {
-      platformVersion = await Scan.platformVersion;
-      debugPrint(platformVersion);
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-    if (!mounted) return;
-
     scanFromGallery();
   }
 
-  scanFromGallery() async {
-    XFile? res = (await ImagePicker().pickImage(source: ImageSource.gallery));
-    if (res != null) {
-      String? str = await Scan.parse(res.path);
-      if (str != null) {
-        setState(() {
-          _scanBarcode = str;
-          debugPrint("---------------------");
-          debugPrint(_scanBarcode);
-          debugPrint("---------------------");
-          parseData(_scanBarcode);
-        });
+  Future<void> scanFromGallery() async {
+    try {
+      final XFile? res =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+
+      if (res == null) return;
+
+      final controller = MobileScannerController();
+
+      final BarcodeCapture? capture = await controller.analyzeImage(res.path);
+
+      controller.dispose();
+
+      if (capture == null || capture.barcodes.isEmpty) {
+        debugPrint("QR code not found in the selected image.");
+        return;
       }
+
+      final String? barcodeScanRes = capture.barcodes.first.rawValue;
+
+      if (barcodeScanRes == null || barcodeScanRes.isEmpty) {
+        debugPrint("QR value is empty.");
+        return;
+      }
+
+      setState(() {
+        _scanBarcode = barcodeScanRes;
+        debugPrint("---------------------");
+        debugPrint(_scanBarcode);
+        debugPrint("---------------------");
+        parseData(_scanBarcode);
+      });
+    } catch (e, stack) {
+      debugPrint("Error scanning QR from gallery: $e");
+      debugPrint("$stack");
     }
   }
 
-  parseData(barcodeScanRes) async {
+  Future<void> parseData(String barcodeScanRes) async {
     String scannedData = 'Unknown';
     try {
       debugPrint("barcode Scan Res");
@@ -188,13 +196,8 @@ class _GalleryQRPageState extends State<GalleryQRPage> {
                   return;
                 }
 
-                Navigator.pushAndRemoveUntil<dynamic>(
-                  context,
-                  MaterialPageRoute<dynamic>(
-                    builder: (BuildContext context) => const TabsPage(),
-                  ),
-                  (route) => false,
-                );
+                Navigator.popUntil(
+                    navigatorKey.currentContext!, (route) => route.isFirst);
               },
             )
           ],
@@ -217,7 +220,7 @@ class _GalleryQRPageState extends State<GalleryQRPage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(); // close dialog
-                initPlatformState(); // rescan directly
+                scanFromGallery(); // rescan directly
               },
               child: const Text("Scan Again"),
             ),

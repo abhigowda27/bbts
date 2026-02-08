@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:bbts_server/blocs/switch/switch_bloc.dart';
 import 'package:bbts_server/blocs/switch/switch_event.dart';
+import 'package:bbts_server/main.dart';
 import 'package:bbts_server/screens/bbtm_screens/controllers/storage.dart';
 import 'package:bbts_server/screens/bbtm_screens/models/group_model.dart';
 import 'package:bbts_server/screens/bbtm_screens/models/router_model.dart';
 import 'package:bbts_server/screens/bbtm_screens/models/switch_model.dart';
+import 'package:bbts_server/screens/bbtm_screens/view/qr/scan_qr_page.dart';
 import 'package:bbts_server/screens/bbtm_screens/widgets/custom/custom_button.dart';
 import 'package:bbts_server/screens/bbtm_screens/widgets/custom/toast.dart';
 import 'package:bbts_server/screens/bbtm_screens/widgets/group/group_card.dart';
@@ -13,8 +15,6 @@ import 'package:bbts_server/screens/bbtm_screens/widgets/router/router_card.dart
 import 'package:bbts_server/screens/bbtm_screens/widgets/switches/switches_card.dart';
 import 'package:bbts_server/screens/tabs_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class ScanQr extends StatefulWidget {
   const ScanQr({required this.type, super.key});
@@ -36,23 +36,20 @@ class _QRViewState extends State<ScanQr> {
   @override
   void initState() {
     super.initState();
-    scanQR();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scanQR();
+    });
   }
 
   Future<void> scanQR() async {
-    String barcodeScanRes;
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666',
-        'Cancel',
-        true,
-        ScanMode.QR,
-      );
-    } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
-    }
+    final String? barcodeScanRes = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const QrScanPage()),
+    );
 
-    if (!mounted) return;
+    if (!mounted || barcodeScanRes == null || barcodeScanRes.isEmpty) return;
+
+    debugPrint(barcodeScanRes);
 
     String scannedData = 'Unknown';
     try {
@@ -207,7 +204,7 @@ class _QRViewState extends State<ScanQr> {
                 }
 
                 Navigator.pushAndRemoveUntil<dynamic>(
-                  context,
+                  navigatorKey.currentContext!,
                   MaterialPageRoute<dynamic>(
                     builder: (BuildContext context) => const TabsPage(),
                   ),
@@ -235,7 +232,9 @@ class _QRViewState extends State<ScanQr> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop(); // close dialog
-                scanQR(); // rescan directly
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  scanQR();
+                });
               },
               child: const Text("Scan Again"),
             ),

@@ -29,9 +29,10 @@ class _RouterListCardState extends State<RouterListCard> {
 
   @override
   void initState() {
+    debugPrint(widget.switchStatus.toString());
     super.initState();
     slNo = widget.index + 1;
-    switchOn = !widget.switchStatus;
+    switchOn = widget.switchStatus;
   }
 
   @override
@@ -41,12 +42,13 @@ class _RouterListCardState extends State<RouterListCard> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             blurRadius: 7,
             offset: const Offset(5, 5),
           ),
         ],
-        color: Theme.of(context).appColors.buttonBackground.withOpacity(0.2),
+        color:
+            Theme.of(context).appColors.buttonBackground.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(

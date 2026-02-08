@@ -1,9 +1,10 @@
 import 'dart:async';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:open_settings/open_settings.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../controllers/wifi.dart';
 import '../../models/router_model.dart';
@@ -68,12 +69,6 @@ class _ConnectToSwitchWidgetState extends State<ConnectToGroupWidget> {
           const SizedBox(
             height: 20,
           ),
-          CustomButton(
-              text: "Open WIFI Settings",
-              icon: Icons.wifi_find,
-              onPressed: () {
-                OpenSettings.openWIFISetting();
-              }),
           if (widget.selectedSwitches
               .any((element) => element.switchTypes.isNotEmpty)) ...[
             CustomButton(
@@ -82,8 +77,14 @@ class _ConnectToSwitchWidgetState extends State<ConnectToGroupWidget> {
                 onPressed: () {
                   if (!_connectionStatus.contains(widget.selectedRouter) &&
                       !widget.selectedRouter.contains(_connectionStatus)) {
-                    showToast(
-                        "Please Connect WIFI to '${widget.selectedRouter}' to proceed");
+                    Fluttertoast.showToast(
+                        toastLength: Toast.LENGTH_LONG,
+                        backgroundColor:
+                            Theme.of(context).appColors.textSecondary,
+                        textColor: Theme.of(context).appColors.background,
+                        msg:
+                            "Please Connect WIFI to '${widget.selectedRouter}' to proceed");
+                    AppSettings.openAppSettings(type: AppSettingsType.wifi);
                     return;
                   }
                   Navigator.push(

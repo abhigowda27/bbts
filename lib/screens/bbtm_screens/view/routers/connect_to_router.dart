@@ -1,15 +1,15 @@
 import 'dart:async';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:bbts_server/screens/bbtm_screens/view/routers/router_on_off.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:open_settings/open_settings.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../controllers/wifi.dart';
 import '../../models/router_model.dart';
 import '../../widgets/custom/custom_button.dart';
-import '../../widgets/custom/toast.dart';
 
 class ConnectToRouterPage extends StatefulWidget {
   final RouterDetails routerDetails;
@@ -63,12 +63,6 @@ class _ConnectToRouterPageState extends State<ConnectToRouterPage> {
               const SizedBox(
                 height: 20,
               ),
-              CustomButton(
-                  text: "Open WIFI Settings",
-                  icon: Icons.wifi_find,
-                  onPressed: () {
-                    OpenSettings.openWIFISetting();
-                  }),
               if (widget.routerDetails.switchTypes.isNotEmpty ||
                   widget.routerDetails.selectedFan!.isNotEmpty) ...[
                 CustomButton(
@@ -78,8 +72,15 @@ class _ConnectToRouterPageState extends State<ConnectToRouterPage> {
                               .contains(widget.routerDetails.routerName) &&
                           !widget.routerDetails.routerName
                               .contains(_connectionStatus)) {
-                        showToast(
-                            "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed");
+                        Fluttertoast.showToast(
+                          toastLength: Toast.LENGTH_LONG,
+                          backgroundColor:
+                              Theme.of(context).appColors.textSecondary,
+                          textColor: Theme.of(context).appColors.background,
+                          msg:
+                              "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed",
+                        );
+                        AppSettings.openAppSettings(type: AppSettingsType.wifi);
                         return;
                       }
                       Navigator.push(

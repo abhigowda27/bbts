@@ -55,17 +55,17 @@ class _GroupFanSwitchCardState extends State<GroupFanSwitchCard> {
   }
 
   void updateSwitch() async {
-    String res = await ApiConnect.hitApiGet(
+    Map<String, dynamic> apiRes = await ApiConnect.hitApiGet(
         "${widget.switchDetails.iPAddress}/Switchstatus");
-    debugPrint(res);
+    final Map<String, dynamic> res = Map<String, dynamic>.from(apiRes["data"]);
     setState(() {
-      if (res.contains("OK5 OPEN")) {
+      if (res["FAN"] == "LOW") {
         debugPrint("low");
         selectedControl = "LOW";
-      } else if (res.contains("OK6 OPEN")) {
+      } else if (res["FAN"] == "MED") {
         debugPrint("medium");
         selectedControl = "MEDIUM";
-      } else if (res.contains("OK7 OPEN")) {
+      } else if (res["FAN"] == "HIGH") {
         debugPrint("high");
         selectedControl = "HIGH";
       } else {
@@ -129,7 +129,7 @@ class _GroupFanSwitchCardState extends State<GroupFanSwitchCard> {
                   borderRadius: BorderRadius.circular(12.0),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
+                      color: Colors.grey.withValues(alpha: 0.2),
                       spreadRadius: 3,
                       blurRadius: 5,
                       offset: const Offset(2, 2),

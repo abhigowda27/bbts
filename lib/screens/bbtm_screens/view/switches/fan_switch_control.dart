@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bbts_server/main.dart';
 import 'package:bbts_server/screens/bbtm_screens/models/switch_model.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -256,7 +257,7 @@ class _FanSwitchControlState extends State<FanSwitchControl> {
     } on DioException catch (e) {
       debugPrint("$e");
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
         SnackBar(
             content: Text("An unexpected error occurred: ${e.toString()}")),
       );

@@ -5,8 +5,8 @@ ThemeData lightTheme() {
   return ThemeData(
     useMaterial3: true,
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: lightAppColors.primary.withOpacity(
-        0.8,
+      backgroundColor: lightAppColors.primary.withValues(
+        alpha: 0.8,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(50), // roundness
@@ -24,14 +24,13 @@ ThemeData lightTheme() {
       backgroundColor: lightAppColors.primary,
       foregroundColor: lightAppColors.background,
     ),
-    dialogBackgroundColor: lightAppColors.background,
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         foregroundColor: lightAppColors.primary,
       ),
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -124,9 +123,7 @@ ThemeData darkTheme() {
   return ThemeData(
     useMaterial3: true,
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: lightAppColors.primary.withOpacity(
-        0.8,
-      ),
+      backgroundColor: lightAppColors.primary.withValues(alpha: 0.8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(50), // roundness
       ),
@@ -143,7 +140,6 @@ ThemeData darkTheme() {
       backgroundColor: darkAppColors.primary,
       foregroundColor: darkAppColors.textPrimary,
     ),
-    dialogBackgroundColor: darkAppColors.background,
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -211,6 +207,7 @@ ThemeData darkTheme() {
       labelSmall: TextStyle(
           fontSize: 11, fontWeight: FontWeight.w400, color: darkAppColors.grey),
     ),
+    dialogTheme: DialogThemeData(backgroundColor: darkAppColors.background),
   );
 }
 

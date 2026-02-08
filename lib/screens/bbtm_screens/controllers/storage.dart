@@ -5,7 +5,6 @@ import 'package:bbts_server/screens/bbtm_screens/widgets/custom/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../models/contacts.dart';
 import '../models/group_model.dart';
 import '../models/mac_model.dart';
 import '../models/router_model.dart';
@@ -14,60 +13,6 @@ import '../models/switch_model.dart';
 
 class StorageController {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-
-  // for Contacts
-  void addContacts(ContactsModel contactsModel) async {
-    List<ContactsModel> contactList = await readContacts();
-    contactList.add(contactsModel);
-
-    List listContentsInJson = contactList.map((e) {
-      return e.toJson();
-    }).toList();
-    storage.write(key: "contacts", value: json.encode(listContentsInJson));
-  }
-
-  deleteContacts() async {
-    await storage.delete(key: "contacts");
-  }
-
-  deleteOneContact(ContactsModel contactsModel) async {
-    List<ContactsModel> contactList = await readContacts();
-    contactList.removeWhere((element) => element.name == contactsModel.name);
-    // for (var element in contactList) {
-    //   if(element.name == contactsModel.name){}
-    // }
-    // contactList.(contactsModel);
-    List listContectsInJson = contactList.map((e) {
-      return e.toJson();
-    }).toList();
-    storage.write(key: "contacts", value: json.encode(listContectsInJson));
-  }
-
-  getContactByPhone(phone) async {
-    List<ContactsModel> switchesList = await readContacts();
-    for (var element in switchesList) {
-      if (element.name == phone) return element;
-    }
-    return null;
-  }
-
-  Future<List<ContactsModel>> readContacts() async {
-    String? contacts = await storage.read(key: "contacts");
-    List<ContactsModel> model = [];
-    if (contacts == null) {
-      List listContectsInJson = model.map((e) {
-        return e.toJson();
-      }).toList();
-      storage.write(key: "contacts", value: json.encode(listContectsInJson));
-    } else {
-      model = [];
-      var jsonContacts = json.decode(contacts);
-      for (var element in jsonContacts) {
-        model.add(ContactsModel.fromJson(element));
-      }
-    }
-    return model;
-  }
 
   // Switch
 
@@ -186,7 +131,7 @@ class StorageController {
         value: json.encode(routersList.map((e) => e.toJson()).toList()));
   }
 
-  deleteSwitches() async {
+  Future<void> deleteSwitches() async {
     await storage.delete(key: "switches");
   }
 
@@ -218,7 +163,7 @@ class StorageController {
     return model;
   }
 
-  getSwitchBySSID(switchName) async {
+  Future<SwitchDetails?>? getSwitchBySSID(String switchName) async {
     List<SwitchDetails> switchesList = await readSwitches();
     for (var element in switchesList) {
       if (element.switchSSID == switchName) return element;
@@ -226,7 +171,7 @@ class StorageController {
     return null;
   }
 
-  deleteOneSwitch(SwitchDetails switchDetails) async {
+  Future<void> deleteOneSwitch(SwitchDetails switchDetails) async {
     List<SwitchDetails> switchList = await readSwitches();
     switchList.removeWhere(
         (element) => element.switchSSID == switchDetails.switchSSID);
@@ -317,11 +262,11 @@ class StorageController {
     );
   }
 
-  deleteRouters() async {
+  Future<void> deleteRouters() async {
     await storage.delete(key: "routers");
   }
 
-  getRouterByName(switchName) async {
+  Future<RouterDetails?>? getRouterByName(String switchName) async {
     List<RouterDetails> routerList = await readRouters();
     for (var element in routerList) {
       if ("${element.routerName}_${element.switchName}" == switchName) {
@@ -351,7 +296,7 @@ class StorageController {
     return model;
   }
 
-  deleteOneRouter(String switchId) async {
+  Future<void> deleteOneRouter(String switchId) async {
     List<RouterDetails> switchList = await readRouters();
 
     switchList.removeWhere((element) => element.switchID == switchId);
@@ -436,11 +381,11 @@ class StorageController {
     await storage.write(key: _groupStateKey, value: value.toString());
   }
 
-  deleteGroups() async {
+  Future<void> deleteGroups() async {
     await storage.delete(key: "groups");
   }
 
-  getGroupByName(groupName) async {
+  Future<GroupDetails?>? getGroupByName(String groupName) async {
     List<GroupDetails> groupList = await readAllGroups();
     for (var element in groupList) {
       if (element.groupName == groupName) return element;
@@ -475,8 +420,8 @@ class StorageController {
     return groupsList.map((json) => GroupDetails.fromJson(json)).toList();
   }
 
-  Future<void> updateGroupDetails(
-      groupName, routerName, List<RouterDetails> selectedSwitches) async {
+  Future<void> updateGroupDetails(String groupName, String routerName,
+      List<RouterDetails> selectedSwitches) async {
     // Assuming you have a method to fetch all group details from storage
     List<GroupDetails> allGroups = await readAllGroups();
     debugPrint("-------------");
@@ -510,7 +455,7 @@ class StorageController {
     );
   }
 
-  deleteMacs() async {
+  Future<void> deleteMacs() async {
     await storage.delete(key: "macs");
   }
 
@@ -537,7 +482,8 @@ class StorageController {
   }
 
   // factory Reset
-  deleteEverythingWithRespectToSwitchID(SwitchDetails switchDetails) async {
+  Future<void> deleteEverythingWithRespectToSwitchID(
+      SwitchDetails switchDetails) async {
     debugPrint("Deleting all routers");
     List<RouterDetails> routerList = await readRouters();
     routerList

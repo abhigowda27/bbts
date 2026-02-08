@@ -22,16 +22,16 @@ class NetworkService {
     try {
       if (!kIsWeb && Platform.isIOS) {
         // iOS specific logic for network info
-        var status = await _networkInfo.getLocationServiceAuthorization();
-        if (status == LocationAuthorizationStatus.notDetermined) {
-          status = await _networkInfo.requestLocationServiceAuthorization();
-        }
-        if (status == LocationAuthorizationStatus.authorizedAlways ||
-            status == LocationAuthorizationStatus.authorizedWhenInUse) {
-          wifiName = await _networkInfo.getWifiName();
-        } else {
-          wifiName = await _networkInfo.getWifiName();
-        }
+        // var status = await _networkInfo.getLocationServiceAuthorization();
+        // if (status == LocationAuthorizationStatus.notDetermined) {
+        //   status = await _networkInfo.requestLocationServiceAuthorization();
+        // }
+        // if (status == LocationAuthorizationStatus.authorizedAlways ||
+        //     status == LocationAuthorizationStatus.authorizedWhenInUse) {
+        //   wifiName = await _networkInfo.getWifiName();
+        // } else {
+        //   wifiName = await _networkInfo.getWifiName();
+        // }
       } else {
         wifiName = await _networkInfo.getWifiName();
       }

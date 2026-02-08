@@ -9,6 +9,7 @@ import 'package:bbts_server/screens/bbtm_screens/view/routers/router_on_off.dart
 import 'package:bbts_server/screens/switches/switch_page_cloud.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -114,7 +115,7 @@ class _RouterCardState extends State<RouterCard> {
                       color: Theme.of(context)
                           .appColors
                           .textSecondary
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       spreadRadius: 5,
                       blurRadius: 7,
                       offset: const Offset(5, 5),
@@ -349,10 +350,10 @@ class _RouterCardState extends State<RouterCard> {
                     IconButton(
                         tooltip: "Delete Router",
                         onPressed: () {
-                          showDialog(
+                          showCupertinoDialog(
                             context: context,
                             builder: (cont) {
-                              return AlertDialog(
+                              return CupertinoAlertDialog(
                                 title: Text(
                                   'Delete Router',
                                   style: Theme.of(context)
@@ -369,7 +370,7 @@ class _RouterCardState extends State<RouterCard> {
                                       Theme.of(context).textTheme.titleMedium,
                                 ),
                                 actions: [
-                                  OutlinedButton(
+                                  CupertinoButton(
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
@@ -377,7 +378,7 @@ class _RouterCardState extends State<RouterCard> {
                                       'CANCEL',
                                     ),
                                   ),
-                                  OutlinedButton(
+                                  CupertinoButton(
                                     onPressed: () async {
                                       _storageController.deleteOneRouter(
                                           widget.routerDetails.switchID);

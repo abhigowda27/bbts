@@ -104,12 +104,15 @@ class _GroupSwitchOnOffState extends State<GroupSwitchOnOff> {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
+                      color: Colors.grey.withValues(alpha: 0.2),
                       blurRadius: 7,
                       offset: const Offset(5, 5),
                     ),
                   ],
-                  color: Theme.of(context).appColors.primary.withOpacity(0.7),
+                  color: Theme.of(context)
+                      .appColors
+                      .primary
+                      .withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(

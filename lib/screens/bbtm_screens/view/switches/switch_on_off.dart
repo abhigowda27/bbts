@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bbts_server/main.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -30,15 +31,14 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
   late Timer _timer;
   final Duration _timerDuration = const Duration(minutes: 2);
   late List<String> switchTypes;
-  String switchStatus = "Off";
   bool switchOn = false;
-  String statusRes = "";
+  Map<String, dynamic> statusRes = {};
   late String selectedControl = "OFF";
-  List<String> controls = [
+  final List<String> controls = [
     "OFF",
-    "HIGH",
     "LOW",
     "MEDIUM",
+    "HIGH",
   ];
   Future<List<String>> fetchSwitches() async {
     return widget.switchDetails.switchTypes;
@@ -64,39 +64,38 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
   }
 
   Future<void> updateSwitch() async {
-    String res = await ApiConnect.hitApiGet(
+    Map<String, dynamic> apiRes = await ApiConnect.hitApiGet(
         "${widget.switchDetails.iPAddress}/Switchstatus");
-    debugPrint("${widget.switchDetails.iPAddress}/Switchstatus");
-    debugPrint(res);
+    final Map<String, dynamic> res = Map<String, dynamic>.from(apiRes["data"]);
     int totalSwitches = widget.switchDetails.switchTypes.length;
     setState(() {
       bool anyClosed = false;
       for (int i = 1; i <= totalSwitches; i++) {
-        if (res.contains("OK$i CLOSE")) {
-          anyClosed = true;
-          break;
+        final key = "ON$i";
+        if (res.containsKey(key)) {
+          if (res[key].toString() == "0") {
+            anyClosed = true;
+            break;
+          }
         }
       }
       statusRes = res;
       switchOn = !anyClosed;
-      switchStatus = anyClosed ? "Off" : "On";
     });
     setState(() {
-      if (res.contains("OK5 OPEN")) {
+      if (res["FAN"] == "LOW") {
         debugPrint("low");
         selectedControl = "LOW";
-      } else if (res.contains("OK6 OPEN")) {
+      } else if (res["FAN"] == "MED") {
         debugPrint("medium");
         selectedControl = "MEDIUM";
-      } else if (res.contains("OK7 OPEN")) {
+      } else if (res["FAN"] == "HIGH") {
         debugPrint("high");
         selectedControl = "HIGH";
       } else {
         selectedControl = "OFF";
       }
     });
-    debugPrint("statusRes");
-    debugPrint(statusRes);
   }
 
   @override
@@ -145,7 +144,6 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
       onTap: () => _resetTimer,
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).appColors.primary,
           onPressed: () {
             updateSwitch();
           },
@@ -167,12 +165,15 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
+                      color: Colors.grey.withValues(alpha: 0.2),
                       blurRadius: 7,
                       offset: const Offset(5, 5),
                     ),
                   ],
-                  color: Theme.of(context).appColors.primary.withOpacity(0.7),
+                  color: Theme.of(context)
+                      .appColors
+                      .primary
+                      .withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -305,13 +306,11 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                     itemCount: snapshot.data?.length ?? 0,
                     itemBuilder: (context, index) {
                       debugPrint(snapshot.data?[index]);
-                      debugPrint("OK${index + 1} CLOSE");
                       return SwitchMatrixCard(
                         switchDetails: widget.switchDetails,
                         index: index,
-                        switchStatus: statusRes.contains("OK${index + 1} OPEN")
-                            ? false
-                            : true,
+                        switchStatus:
+                            statusRes["ON${index + 1}"]?.toString() == "1",
                         wifiName: _connectionStatus,
                       );
                     },
@@ -489,7 +488,7 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
     } on DioException catch (e) {
       debugPrint("$e");
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
         SnackBar(
             content: Text("An unexpected error occurred: ${e.toString()}")),
       );

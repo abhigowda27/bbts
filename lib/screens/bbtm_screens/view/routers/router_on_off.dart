@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bbts_server/main.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -38,9 +39,8 @@ class _RouterOnOffState extends State<RouterOnOff> {
 
   final Duration _timerDuration = const Duration(minutes: 2);
   late List<String> switchTypes;
-  String switchStatus = "Off";
   bool switchOn = false;
-  String statusRes = "";
+  Map<String, dynamic> statusRes = {};
   Future<List<String>> fetchSwitches() async {
     return widget.routerDetails.switchTypes;
   }
@@ -65,38 +65,38 @@ class _RouterOnOffState extends State<RouterOnOff> {
   }
 
   Future<void> updateSwitch() async {
-    debugPrint("${widget.routerDetails.iPAddress}/Switchstatus");
-    String res = await ApiConnect.hitApiGet(
+    Map<String, dynamic> apiRes = await ApiConnect.hitApiGet(
         "${widget.routerDetails.iPAddress}/Switchstatus");
+    final Map<String, dynamic> res = Map<String, dynamic>.from(apiRes["data"]);
     int totalSwitches = widget.routerDetails.switchTypes.length;
     setState(() {
       bool anyClosed = false;
       for (int i = 1; i <= totalSwitches; i++) {
-        if (res.contains("OK$i CLOSE")) {
-          anyClosed = true;
-          break;
+        final key = "ON$i";
+        if (res.containsKey(key)) {
+          if (res[key].toString() == "0") {
+            anyClosed = true;
+            break;
+          }
         }
       }
       statusRes = res;
       switchOn = !anyClosed;
-      switchStatus = anyClosed ? "Off" : "On";
     });
     setState(() {
-      if (res.contains("OK5 OPEN")) {
+      if (res["FAN"] == "LOW") {
         debugPrint("low");
         selectedControl = "LOW";
-      } else if (res.contains("OK6 OPEN")) {
+      } else if (res["FAN"] == "MED") {
         debugPrint("medium");
         selectedControl = "MEDIUM";
-      } else if (res.contains("OK7 OPEN")) {
+      } else if (res["FAN"] == "HIGH") {
         debugPrint("high");
         selectedControl = "HIGH";
       } else {
         selectedControl = "OFF";
       }
     });
-    debugPrint("statusRes");
-    debugPrint(statusRes);
   }
 
   @override
@@ -144,7 +144,6 @@ class _RouterOnOffState extends State<RouterOnOff> {
       child: Scaffold(
         appBar: AppBar(title: Text(widget.routerDetails.routerName)),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Theme.of(context).appColors.primary,
           onPressed: () {
             updateSwitch();
           },
@@ -167,12 +166,15 @@ class _RouterOnOffState extends State<RouterOnOff> {
                   decoration: BoxDecoration(
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
+                        color: Colors.grey.withValues(alpha: 0.2),
                         blurRadius: 7,
                         offset: const Offset(5, 5),
                       ),
                     ],
-                    color: Theme.of(context).appColors.primary.withOpacity(0.7),
+                    color: Theme.of(context)
+                        .appColors
+                        .primary
+                        .withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -275,9 +277,7 @@ class _RouterOnOffState extends State<RouterOnOff> {
                           routerDetails: widget.routerDetails,
                           index: index,
                           switchStatus:
-                              statusRes.contains("OK${index + 1} OPEN")
-                                  ? false
-                                  : true,
+                              statusRes["ON${index + 1}"]?.toString() == "1",
                           wifiName: _connectionStatus,
                         );
                       },
@@ -514,7 +514,7 @@ class _RouterOnOffState extends State<RouterOnOff> {
     } on DioException catch (e) {
       debugPrint("Api Error $e");
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
         SnackBar(
             content: Text("An unexpected error occurred: ${e.toString()}")),
       );

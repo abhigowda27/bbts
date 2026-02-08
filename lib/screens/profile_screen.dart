@@ -181,7 +181,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(
-                  color: Theme.of(context).appColors.grey.withOpacity(0.5)),
+                  color:
+                      Theme.of(context).appColors.grey.withValues(alpha: 0.5)),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 20),
             onTap: () => _showThemeDialog(context),
@@ -203,7 +204,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(
-                  color: Theme.of(context).appColors.grey.withOpacity(0.5)),
+                  color:
+                      Theme.of(context).appColors.grey.withValues(alpha: 0.5)),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 20),
             onTap: _showLogoutDialog,
@@ -264,13 +266,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         horizontal: 12, vertical: 12),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? appColors.primary.withOpacity(0.1)
+                          ? appColors.primary.withValues(alpha: 0.1)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
                             ? appColors.primary
-                            : appColors.grey.withOpacity(0.3),
+                            : appColors.grey.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(

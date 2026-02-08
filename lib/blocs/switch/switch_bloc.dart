@@ -10,6 +10,7 @@ class SwitchBloc extends Bloc<SwitchEvent, CommonState> {
     on<TriggerSwitchEvent>(_onTriggerSwitchEvent);
     on<DeleteSwitchEvent>(_onDeleteSwitchEvent);
     on<GetSwitchListEvent>(_onGetSwitchListEvent);
+    on<GetSwitchStatus>(_onGetSwitchStatus);
   }
 
   Future<void> _onGetSwitchListEvent(
@@ -71,6 +72,22 @@ class SwitchBloc extends Bloc<SwitchEvent, CommonState> {
       Repository addSwitchRepository = Repository();
       final deleteSwitchResponse =
           await addSwitchRepository.deleteSwitchRepo(payload);
+
+      emit(state.copyWith(
+          apiStatus: ApiResponse(response: deleteSwitchResponse)));
+    } catch (e) {
+      emit(state.copyWith(apiStatus: ApiFailureState(exception: e)));
+    }
+  }
+
+  Future<void> _onGetSwitchStatus(
+      GetSwitchStatus event, Emitter<CommonState> emit) async {
+    emit(state.copyWith(apiStatus: ApiLoadingState()));
+    try {
+      final payload = event.payload;
+      Repository addSwitchRepository = Repository();
+      final deleteSwitchResponse =
+          await addSwitchRepository.getSwitchStatus(payload);
 
       emit(state.copyWith(
           apiStatus: ApiResponse(response: deleteSwitchResponse)));

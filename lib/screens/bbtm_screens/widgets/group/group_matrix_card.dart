@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bbts_server/main.dart';
 import 'package:bbts_server/screens/bbtm_screens/widgets/router/router_list_card.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -24,9 +25,8 @@ class GroupMatrixCard extends StatefulWidget {
 }
 
 class _GroupMatrixCardState extends State<GroupMatrixCard> {
-  String switchStatus = "Off";
   bool switchOff = true;
-  String statusRes = "";
+  Map<String, dynamic> statusRes = {};
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late NetworkService _networkService;
@@ -52,31 +52,25 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
   }
 
   Future<void> updateSwitch() async {
-    String res = await ApiConnect.hitApiGet(
+    Map<String, dynamic> apiRes = await ApiConnect.hitApiGet(
         "${widget.switchDetails.iPAddress}/Switchstatus");
-    debugPrint(res);
+    final Map<String, dynamic> res = Map<String, dynamic>.from(apiRes["data"]);
+
     int totalSwitches = widget.switchDetails.switchTypes.length;
     setState(() {
       bool anyClosed = false;
       for (int i = 1; i <= totalSwitches; i++) {
-        if (res.contains("OK$i CLOSE")) {
-          anyClosed = true;
-          break;
+        final key = "ON$i";
+        if (res.containsKey(key)) {
+          if (res[key].toString() == "0") {
+            anyClosed = true;
+            break;
+          }
         }
       }
       statusRes = res;
       switchOff = anyClosed;
-      switchStatus = anyClosed ? "Off" : "On";
     });
-    // setState(() {
-    //   if (res.contains("OPEN")) {
-    //     switchOff = false;
-    //     switchStatus = "On";
-    //   } else {
-    //     switchOff = true;
-    //     switchStatus = "Off";
-    //   }
-    // });
   }
 
   String _connectionStatus = 'Unknown';
@@ -96,8 +90,8 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 7,
+            color: Colors.grey.withValues(alpha: 0.2),
+            blurRadius: 5,
             offset: const Offset(5, 5),
           ),
         ],
@@ -158,7 +152,8 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
                       });
                       await updateSwitch();
                     } on DioException catch (e) {
-                      final scaffold = ScaffoldMessenger.of(context);
+                      final scaffold =
+                          ScaffoldMessenger.of(navigatorKey.currentContext!);
                       scaffold.showSnackBar(
                         SnackBar(
                           content: Text(
@@ -194,12 +189,12 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
                   shrinkWrap: true,
                   itemCount: snapshot.data?.length ?? 0,
                   itemBuilder: (context, index) {
+                    debugPrint(statusRes["ON${index + 1}"]?.toString());
                     return RouterListCard(
                       routerDetails: widget.switchDetails,
                       index: index,
-                      switchStatus: statusRes.contains("OK${index + 1} OPEN")
-                          ? false
-                          : true,
+                      switchStatus:
+                          statusRes["ON${index + 1}"]?.toString() == "1",
                       wifiName: _connectionStatus,
                     );
                   },

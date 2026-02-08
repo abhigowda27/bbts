@@ -25,7 +25,6 @@ class ThemeProvider extends ChangeNotifier {
         _themeMode = ThemeMode.dark;
         break;
       case AppThemeMode.system:
-      default:
         _themeMode = ThemeMode.system;
     }
     final prefs = await SharedPreferences.getInstance();

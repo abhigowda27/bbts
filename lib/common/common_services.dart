@@ -6,7 +6,7 @@ class CommonServices {
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.3), // dimmed background
+      barrierColor: Colors.black.withValues(alpha: 0.3), // dimmed background
       builder: (BuildContext context) {
         return const PopScope(
           canPop: false,

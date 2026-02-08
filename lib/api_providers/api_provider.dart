@@ -259,4 +259,35 @@ class ApiProvider {
       throw Exception('error: $e');
     }
   }
+
+  Future<dynamic> getSwitchStatus(Map<String, dynamic> payload) async {
+    String? savedCookie = SharedPreferenceServices().getAuthCookie();
+    debugPrint("Header Passing to Api=====>$savedCookie");
+    debugPrint("payload Passing to Api=====>$payload");
+    try {
+      final response = await _dio
+          .post(
+            '/api/devices/details',
+            options: Options(
+              headers: {
+                'Cookie': savedCookie,
+              },
+            ),
+            data: payload,
+          )
+          .timeout(const Duration(seconds: 15));
+      debugPrint("Get Switch Status Api Response=====> $response");
+
+      debugPrint("Get Switch Status Api ResponseData=====> ${response.data}");
+      return response.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('Get Switch Status failed ${e.response?.data}');
+      } else {
+        throw Exception('Network error: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }

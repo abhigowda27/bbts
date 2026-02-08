@@ -45,7 +45,7 @@ class _GroupCardState extends State<GroupCard> {
                     color: Theme.of(context)
                         .appColors
                         .textSecondary
-                        .withOpacity(0.1),
+                        .withValues(alpha: 0.1),
                     spreadRadius: 5,
                     blurRadius: 7,
                     offset: const Offset(5, 5),

@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 void showToast(String text) {
   final context = navigatorKey.currentContext!;
   final scaffold = ScaffoldMessenger.of(context);
+  ScaffoldMessenger.of(navigatorKey.currentContext!).hideCurrentSnackBar();
+
   scaffold.showSnackBar(
     SnackBar(
-      duration: const Duration(seconds: 1),
+      dismissDirection: DismissDirection.vertical,
+      duration: const Duration(seconds: 2),
       content: Text(text),
       action: SnackBarAction(
           label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),

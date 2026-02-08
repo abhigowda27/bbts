@@ -48,7 +48,7 @@ class _AddSwitchPageState extends State<AddSwitchPage> {
                 richTxt(text: "Switch Type"),
                 SizedBox(height: width * 0.03),
                 DropdownButtonFormField<int>(
-                  value: selectedSwitchType,
+                  initialValue: selectedSwitchType,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.all(10),
                     hintText: "Select Type",

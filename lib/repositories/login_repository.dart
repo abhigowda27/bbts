@@ -34,4 +34,8 @@ class Repository {
   Future<dynamic> deleteSwitchRepo(Map<String, dynamic> payload) async {
     return apiProvider.deleteSwitch(payload);
   }
+
+  Future<dynamic> getSwitchStatus(Map<String, dynamic> payload) async {
+    return apiProvider.getSwitchStatus(payload);
+  }
 }

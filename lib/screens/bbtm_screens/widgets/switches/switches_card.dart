@@ -23,16 +23,36 @@ class SwitchCard extends StatefulWidget {
   });
 
   @override
-  State<SwitchCard> createState() => _SwitchCardState();
+  State<SwitchCard> createState() => SwitchCardState();
 }
 
-class _SwitchCardState extends State<SwitchCard> {
+class SwitchCardState extends State<SwitchCard> {
   final StorageController _storageController = StorageController();
   bool hide = true;
   bool isExpanded = false;
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<List<ConnectivityResult>>? connectivitySubscription;
   late NetworkService _networkService;
+  void performTap() {
+    (!_connectionStatus.contains(widget.switchDetails.switchSSID) &&
+            !widget.switchDetails.switchSSID.contains(_connectionStatus))
+        ? Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ConnectToSwitchPage(
+                switchDetails: widget.switchDetails,
+              ),
+            ),
+          )
+        : Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SwitchOnOff(
+                switchDetails: widget.switchDetails,
+              ),
+            ),
+          );
+  }
 
   @override
   void initState() {
@@ -99,7 +119,7 @@ class _SwitchCardState extends State<SwitchCard> {
                       color: Theme.of(context)
                           .appColors
                           .textSecondary
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       spreadRadius: 5,
                       blurRadius: 7,
                       offset: const Offset(5, 5),

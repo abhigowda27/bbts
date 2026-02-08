@@ -1,3 +1,4 @@
+import 'package:bbts_server/main.dart';
 import 'package:bbts_server/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -148,7 +149,7 @@ class _ScheduleOnOffPageState extends State<ScheduleOnOffPage> {
     if (onTime == null) return;
 
     final offTime = await showTimePicker(
-      context: context,
+      context: navigatorKey.currentContext!,
       initialTime: onTime,
       helpText: 'Select OFF Time',
     );
@@ -184,7 +185,7 @@ class _ScheduleOnOffPageState extends State<ScheduleOnOffPage> {
                             color: Theme.of(context)
                                 .appColors
                                 .textSecondary
-                                .withOpacity(0.1),
+                                .withValues(alpha: 0.1),
                             spreadRadius: 5,
                             blurRadius: 7,
                             offset: const Offset(5, 5),
@@ -322,7 +323,7 @@ class _ScheduleOnOffPageState extends State<ScheduleOnOffPage> {
                               Switch(
                                 value: alarm!.enabled,
                                 onChanged: toggleAlarm,
-                                activeColor:
+                                activeThumbColor:
                                     Theme.of(context).appColors.greenButton,
                                 activeTrackColor:
                                     Theme.of(context).appColors.green,
@@ -345,7 +346,7 @@ class _ScheduleOnOffPageState extends State<ScheduleOnOffPage> {
           : FloatingActionButton(
               heroTag: "addTimer",
               backgroundColor:
-                  Theme.of(context).appColors.primary.withOpacity(0.7),
+                  Theme.of(context).appColors.primary.withValues(alpha: 0.7),
               onPressed: addNewAlarm,
               child: const Icon(Icons.add),
             ),
