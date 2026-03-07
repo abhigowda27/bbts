@@ -1,4 +1,4 @@
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {

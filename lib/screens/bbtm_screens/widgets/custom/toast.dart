@@ -1,4 +1,4 @@
-import 'package:bbts_server/main.dart';
+import 'package:bbts/main.dart';
 import 'package:flutter/material.dart';
 
 void showToast(String text) {

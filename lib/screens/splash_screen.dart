@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:bbts_server/controllers/shared_preference.dart';
-import 'package:bbts_server/screens/account_register.dart';
-import 'package:bbts_server/screens/tabs_page.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/controllers/shared_preference.dart';
+import 'package:bbts/screens/account_register.dart';
+import 'package:bbts/screens/tabs_page.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {

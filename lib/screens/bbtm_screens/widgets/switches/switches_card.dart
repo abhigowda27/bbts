@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:bbts_server/screens/bbtm_screens/controllers/wifi.dart';
-import 'package:bbts_server/screens/bbtm_screens/view/switches/connect_to_switch.dart';
-import 'package:bbts_server/screens/bbtm_screens/view/switches/switch_on_off.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/screens/bbtm_screens/controllers/wifi.dart';
+import 'package:bbts/screens/bbtm_screens/view/switches/connect_to_switch.dart';
+import 'package:bbts/screens/bbtm_screens/view/switches/switch_on_off.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 

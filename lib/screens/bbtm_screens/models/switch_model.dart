@@ -1,4 +1,4 @@
-import 'package:bbts_server/screens/bbtm_screens/models/contacts.dart';
+import 'package:bbts/screens/bbtm_screens/models/contacts.dart';
 
 class SwitchDetails {
   late String switchId;

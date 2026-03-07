@@ -1,5 +1,5 @@
-import 'package:bbts_server/screens/switches/add_switch.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/screens/switches/add_switch.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'add_multi_switch.dart';

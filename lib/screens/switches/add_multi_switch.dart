@@ -1,11 +1,11 @@
-import 'package:bbts_server/blocs/switch/switch_bloc.dart';
-import 'package:bbts_server/blocs/switch/switch_event.dart';
-import 'package:bbts_server/common/api_status.dart';
-import 'package:bbts_server/common/common_state.dart';
-import 'package:bbts_server/screens/tabs_page.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
-import 'package:bbts_server/widgets/common_snackbar.dart';
-import 'package:bbts_server/widgets/text_field.dart';
+import 'package:bbts/blocs/switch/switch_bloc.dart';
+import 'package:bbts/blocs/switch/switch_event.dart';
+import 'package:bbts/common/api_status.dart';
+import 'package:bbts/common/common_state.dart';
+import 'package:bbts/screens/tabs_page.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
+import 'package:bbts/widgets/common_snackbar.dart';
+import 'package:bbts/widgets/text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

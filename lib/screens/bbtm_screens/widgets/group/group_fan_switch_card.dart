@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';

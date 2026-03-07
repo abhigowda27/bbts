@@ -1,4 +1,4 @@
-import 'package:bbts_server/theme/app_colors.dart';
+import 'package:bbts/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 ThemeData lightTheme() {

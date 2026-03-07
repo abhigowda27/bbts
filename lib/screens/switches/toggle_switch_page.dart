@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:bbts_server/blocs/switch/switch_bloc.dart';
-import 'package:bbts_server/screens/tabs_page.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/blocs/switch/switch_bloc.dart';
+import 'package:bbts/screens/tabs_page.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

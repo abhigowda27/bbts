@@ -1,7 +1,7 @@
-import 'package:bbts_server/blocs/switch/switch_event.dart';
-import 'package:bbts_server/common/api_status.dart';
-import 'package:bbts_server/common/common_state.dart';
-import 'package:bbts_server/repositories/login_repository.dart';
+import 'package:bbts/blocs/switch/switch_event.dart';
+import 'package:bbts/common/api_status.dart';
+import 'package:bbts/common/common_state.dart';
+import 'package:bbts/repositories/login_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SwitchBloc extends Bloc<SwitchEvent, CommonState> {

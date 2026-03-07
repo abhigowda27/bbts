@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:app_settings/app_settings.dart';
-import 'package:bbts_server/screens/bbtm_screens/view/switches/switch_on_off.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/screens/bbtm_screens/view/switches/switch_on_off.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';

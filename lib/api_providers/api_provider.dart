@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:bbts_server/constants.dart';
+import 'package:bbts/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 

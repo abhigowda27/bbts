@@ -1,10 +1,10 @@
-import 'package:bbts_server/blocs/switch/switch_bloc.dart';
-import 'package:bbts_server/blocs/switch/switch_event.dart';
-import 'package:bbts_server/common/api_status.dart';
-import 'package:bbts_server/common/common_state.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
-import 'package:bbts_server/widgets/common_snackbar.dart';
-import 'package:bbts_server/widgets/shimmer_loader.dart';
+import 'package:bbts/blocs/switch/switch_bloc.dart';
+import 'package:bbts/blocs/switch/switch_event.dart';
+import 'package:bbts/common/api_status.dart';
+import 'package:bbts/common/common_state.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
+import 'package:bbts/widgets/common_snackbar.dart';
+import 'package:bbts/widgets/shimmer_loader.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -424,7 +424,9 @@ class _MultiDevicesWidgetState extends State<MultiDevicesWidget> {
               final isFan = deviceType != 1;
               final width = isFan
                   ? MediaQuery.of(context).size.width - 40
-                  : (MediaQuery.of(context).size.width - 60) / 2;
+                  : screenWidth > 600
+                      ? (MediaQuery.of(context).size.width - 60) / 3
+                      : (MediaQuery.of(context).size.width - 60) / 2;
 
               return Container(
                 width: width,

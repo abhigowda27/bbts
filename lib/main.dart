@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:bbts_server/api_providers/theme_provider.dart';
-import 'package:bbts_server/common/globals.dart' as globals;
-import 'package:bbts_server/controllers/shared_preference.dart';
-import 'package:bbts_server/screens/splash_screen.dart';
-import 'package:bbts_server/theme/app_theme.dart';
+import 'package:bbts/api_providers/theme_provider.dart';
+import 'package:bbts/common/globals.dart' as globals;
+import 'package:bbts/controllers/shared_preference.dart';
+import 'package:bbts/screens/splash_screen.dart';
+import 'package:bbts/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

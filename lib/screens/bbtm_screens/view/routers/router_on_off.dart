@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:bbts_server/main.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/main.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -139,6 +139,9 @@ class _RouterOnOffState extends State<RouterOnOff> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final width = screenSize.width;
+    final isLargeScreen = width > 600;
     return GestureDetector(
       onTap: () => _resetTimer,
       child: Scaffold(
@@ -282,9 +285,8 @@ class _RouterOnOffState extends State<RouterOnOff> {
                           wifiName: _connectionStatus,
                         );
                       },
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isLargeScreen ? 3 : 2,
                         childAspectRatio: 1,
                         crossAxisSpacing: 20,
                         mainAxisSpacing: 20,

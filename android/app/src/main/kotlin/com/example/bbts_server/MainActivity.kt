@@ -1,4 +1,4 @@
-package com.example.bbts_server
+package com.example.bbts
 
 import io.flutter.embedding.android.FlutterActivity
 

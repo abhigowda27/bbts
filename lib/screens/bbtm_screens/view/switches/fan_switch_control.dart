@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:bbts_server/main.dart';
-import 'package:bbts_server/screens/bbtm_screens/models/switch_model.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/main.dart';
+import 'package:bbts/screens/bbtm_screens/models/switch_model.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';

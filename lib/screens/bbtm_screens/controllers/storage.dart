@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bbts_server/screens/bbtm_screens/widgets/custom/toast.dart';
+import 'package:bbts/screens/bbtm_screens/widgets/custom/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 

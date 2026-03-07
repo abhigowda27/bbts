@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:bbts_server/blocs/switch/switch_bloc.dart';
-import 'package:bbts_server/blocs/switch/switch_event.dart';
-import 'package:bbts_server/common/common_services.dart';
-import 'package:bbts_server/common/common_state.dart';
-import 'package:bbts_server/screens/bbtm_screens/view/routers/connect_to_router.dart';
-import 'package:bbts_server/screens/bbtm_screens/view/routers/router_on_off.dart';
-import 'package:bbts_server/screens/switches/switch_page_cloud.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/blocs/switch/switch_bloc.dart';
+import 'package:bbts/blocs/switch/switch_event.dart';
+import 'package:bbts/common/common_services.dart';
+import 'package:bbts/common/common_state.dart';
+import 'package:bbts/screens/bbtm_screens/view/routers/connect_to_router.dart';
+import 'package:bbts/screens/bbtm_screens/view/routers/router_on_off.dart';
+import 'package:bbts/screens/switches/switch_page_cloud.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

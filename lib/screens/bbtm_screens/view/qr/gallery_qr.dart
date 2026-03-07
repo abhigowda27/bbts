@@ -1,15 +1,15 @@
 import 'dart:convert';
 
-import 'package:bbts_server/main.dart';
-import 'package:bbts_server/screens/bbtm_screens/controllers/storage.dart';
-import 'package:bbts_server/screens/bbtm_screens/models/group_model.dart';
-import 'package:bbts_server/screens/bbtm_screens/models/router_model.dart';
-import 'package:bbts_server/screens/bbtm_screens/models/switch_model.dart';
-import 'package:bbts_server/screens/bbtm_screens/widgets/custom/custom_button.dart';
-import 'package:bbts_server/screens/bbtm_screens/widgets/custom/toast.dart';
-import 'package:bbts_server/screens/bbtm_screens/widgets/group/group_card.dart';
-import 'package:bbts_server/screens/bbtm_screens/widgets/router/router_card.dart';
-import 'package:bbts_server/screens/bbtm_screens/widgets/switches/switches_card.dart';
+import 'package:bbts/main.dart';
+import 'package:bbts/screens/bbtm_screens/controllers/storage.dart';
+import 'package:bbts/screens/bbtm_screens/models/group_model.dart';
+import 'package:bbts/screens/bbtm_screens/models/router_model.dart';
+import 'package:bbts/screens/bbtm_screens/models/switch_model.dart';
+import 'package:bbts/screens/bbtm_screens/widgets/custom/custom_button.dart';
+import 'package:bbts/screens/bbtm_screens/widgets/custom/toast.dart';
+import 'package:bbts/screens/bbtm_screens/widgets/group/group_card.dart';
+import 'package:bbts/screens/bbtm_screens/widgets/router/router_card.dart';
+import 'package:bbts/screens/bbtm_screens/widgets/switches/switches_card.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';

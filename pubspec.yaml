@@ -1,4 +1,4 @@
-name: bbts_server
+name: bbts
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -15,7 +15,6 @@ dependencies:
   provider: ^6.1.5
   pin_code_fields: ^8.0.1
   flutter_secure_storage: ^10.0.0
-  flutter_native_contact_picker: ^0.0.7
   intl: ^0.20.2
   image_picker: ^1.1.2
   qr_flutter: ^4.1.0
@@ -59,5 +58,6 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/BBT_LOGO_2.png"
+  image_path: "assets/images/BBT_Logo_BG.png"
   min_sdk_android: 21
+  background_color_ios: "#999999"

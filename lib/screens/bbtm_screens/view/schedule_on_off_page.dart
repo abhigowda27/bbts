@@ -1,5 +1,5 @@
-import 'package:bbts_server/main.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/main.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

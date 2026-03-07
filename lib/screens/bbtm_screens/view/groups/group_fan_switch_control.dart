@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 

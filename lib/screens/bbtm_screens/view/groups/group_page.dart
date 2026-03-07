@@ -1,8 +1,8 @@
-import 'package:bbts_server/common/common_services.dart';
-import 'package:bbts_server/common/search_utils.dart';
-import 'package:bbts_server/screens/bbtm_screens/view/qr/gallery_qr.dart';
-import 'package:bbts_server/screens/bbtm_screens/view/qr/qr_view.dart';
-import 'package:bbts_server/theme/app_colors_extension.dart';
+import 'package:bbts/common/common_services.dart';
+import 'package:bbts/common/search_utils.dart';
+import 'package:bbts/screens/bbtm_screens/view/qr/gallery_qr.dart';
+import 'package:bbts/screens/bbtm_screens/view/qr/qr_view.dart';
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
