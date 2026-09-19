@@ -66,7 +66,7 @@ class _ConnectToRouterPageState extends State<ConnectToRouterPage> {
               if (widget.routerDetails.switchTypes.isNotEmpty ||
                   widget.routerDetails.selectedFan!.isNotEmpty) ...[
                 CustomButton(
-                    text: "Connect to ${widget.routerDetails.switchName}",
+                    text: "Connect to ${widget.routerDetails.routerName}",
                     onPressed: () {
                       if (!_connectionStatus
                               .contains(widget.routerDetails.routerName) &&

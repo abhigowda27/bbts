@@ -18,6 +18,7 @@ Future<void> main() async {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+    debugPrint = (String? message, {int? wrapWidth}) {};
     globals.deviceId = await DeviceUtils.getDeviceId();
     runApp(
       ChangeNotifierProvider(

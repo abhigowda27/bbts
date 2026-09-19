@@ -119,7 +119,7 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
                   onPressed: () {
                     updateSwitch();
                   },
-                  icon: Icon(
+                  icon: FaIcon(
                     FontAwesomeIcons.arrowsRotate,
                     color: Theme.of(context).appColors.buttonBackground,
                   ),
@@ -140,10 +140,10 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
                       final switchDetails = widget.switchDetails;
                       for (int i = 1; i <= totalSwitches; i++) {
                         await ApiConnect.hitApiPost(
-                            "${switchDetails.iPAddress}/getSwitchcmd$i", {
+                            "${switchDetails.iPAddress}/getSwitchcmd", {
                           "Lock_id": switchDetails.switchID,
                           "lock_passkey": switchDetails.switchPasskey,
-                          "lock_cmd$i": value ? "ON$i" : "OFF$i",
+                          "lock_cmd": value ? "ON$i" : "OFF$i",
                         }).timeout(const Duration(seconds: 5));
                         debugPrint(value ? "ON$i" : "OFF$i");
                       }
@@ -173,7 +173,7 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
               ],
             ),
           ),
-          FutureBuilder<List<String>>(
+          FutureBuilder<List<Map<String, dynamic>>>(
               future: fetchSwitches(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -211,7 +211,7 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
     );
   }
 
-  Future<List<String>> fetchSwitches() async {
+  Future<List<Map<String, dynamic>>> fetchSwitches() async {
     return widget.switchDetails.switchTypes;
   }
 }

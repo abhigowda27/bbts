@@ -6,8 +6,9 @@ class SwitchDetails {
   late String switchPassword;
   late String? selectedFan;
   late String iPAddress;
+
   late String switchPassKey;
-  late List<String> switchTypes;
+  late List<Map<String, dynamic>> switchTypes;
   late ContactsModel contactsModel;
 
   SwitchDetails(
@@ -27,7 +28,10 @@ class SwitchDetails {
     return SwitchDetails(
       switchId: switchJson['SwitchId'] ?? '',
       switchSSID: switchJson['SwitchSSID'] ?? '',
-      switchTypes: List<String>.from(switchJson['SwitchTypes'] ?? []),
+      switchTypes: (switchJson['SwitchTypes'] as List?)
+              ?.map((e) => Map<String, dynamic>.from(e))
+              .toList() ??
+          [],
       selectedFan: switchJson['SelectedFan'] ?? '',
       switchPassword: switchJson['SwitchPassword'] ?? '',
       iPAddress: switchJson['IPAddress'] ?? '',
@@ -40,7 +44,10 @@ class SwitchDetails {
     return SwitchDetails(
       switchId: json['SwitchId'] ?? '',
       switchSSID: json['SwitchSSID'] ?? '',
-      switchTypes: List<String>.from(json['SwitchTypes'] ?? []),
+      switchTypes: (json['SwitchTypes'] as List?)
+              ?.map((e) => Map<String, dynamic>.from(e))
+              .toList() ??
+          [],
       selectedFan: json['SelectedFan'] ?? '',
       switchPassword: json['SwitchPassword'] ?? '',
       iPAddress: json['IPAddress'] ?? '',

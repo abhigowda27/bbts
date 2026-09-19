@@ -187,18 +187,16 @@ class SwitchCardState extends State<SwitchCard> {
               if (isExpanded) ...[
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.switchDetails.switchTypes
-                      .asMap()
-                      .entries
-                      .map((entry) {
-                    int index = entry.key;
-                    String switchType = entry.value;
+                  children: widget.switchDetails.switchTypes.map((entry) {
+                    final index = entry["order"];
+                    final switchType = entry["name"];
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Row(
                         children: [
                           Text(
-                            '${index + 1}: ',
+                            '$index: ',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           Expanded(
@@ -253,7 +251,10 @@ class SwitchCardState extends State<SwitchCard> {
                                   );
                                   setState(() {
                                     widget.switchDetails.switchTypes
-                                        .removeAt(index);
+                                        .removeWhere(
+                                      (element) =>
+                                          element["name"] == switchType,
+                                    );
                                   });
                                 }
                               },

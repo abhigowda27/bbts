@@ -3,6 +3,7 @@ import 'package:bbts/blocs/switch/switch_event.dart';
 import 'package:bbts/common/api_status.dart';
 import 'package:bbts/common/common_services.dart';
 import 'package:bbts/common/common_state.dart';
+import 'package:bbts/screens/switches/group_page_cloud.dart';
 import 'package:bbts/screens/switches/widgets/switch_lists.dart';
 import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:bbts/widgets/shimmer_loader.dart';
@@ -72,6 +73,24 @@ class _SwitchCloudPageState extends State<SwitchCloudPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GroupPageCloud(
+                    switchBloc: _switchBloc,
+                  ),
+                ),
+              );
+            },
+            icon: Image.asset(
+              "assets/images/group_icon.png",
+              color: Theme.of(context).appColors.background,
+            ),
+          )
+        ],
         title: const Text("Device List"),
       ),
       resizeToAvoidBottomInset: false,

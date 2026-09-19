@@ -38,4 +38,16 @@ class Repository {
   Future<dynamic> getSwitchStatus(Map<String, dynamic> payload) async {
     return apiProvider.getSwitchStatus(payload);
   }
+
+  Future<dynamic> addGroupRepo(Map<String, dynamic> payload) async {
+    return apiProvider.addGroup(payload);
+  }
+
+  Future<dynamic> getGroupListRepo() async {
+    return apiProvider.getGroupList();
+  }
+
+  Future<dynamic> deleteGroupDataRepo(Map<String, dynamic> payload) async {
+    return apiProvider.deleteGroupData(payload);
+  }
 }

@@ -1,14 +1,13 @@
 import 'package:bbts/blocs/switch/switch_bloc.dart';
 import 'package:bbts/blocs/switch/switch_event.dart';
 import 'package:bbts/common/api_status.dart';
+import 'package:bbts/common/common_services.dart';
 import 'package:bbts/common/common_state.dart';
 import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:bbts/widgets/common_snackbar.dart';
 import 'package:bbts/widgets/shimmer_loader.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shimmer/shimmer.dart';
 
 import 'fan_controller_widget.dart';
 
@@ -42,10 +41,13 @@ class _MultiDevicesWidgetState extends State<MultiDevicesWidget> {
   String? fanStatus;
   @override
   void initState() {
+    _callSwitchStatusApi();
+    super.initState();
+  }
+
+  void _callSwitchStatusApi() {
     _getSwitchStatusBloc
         .add(GetSwitchStatus(payload: {"deviceId": widget.switches["uid"]}));
-
-    super.initState();
   }
 
   Future<void> toggleSwitch(
@@ -155,8 +157,13 @@ class _MultiDevicesWidgetState extends State<MultiDevicesWidget> {
                   debugPrint("$responseData");
                 }
                 return switchDetails(responseData["data"] ?? {});
+              } else if (apiResponse is ApiFailureState) {
+                final exception = apiResponse.exception;
+                return CommonServices.apiFailureWidget(
+                    text: exception ?? "something went wrong",
+                    onRetry: () => _callSwitchStatusApi());
               }
-              return switchDetails(widget.switches);
+              return CommonServices.failureWidget(() => _callSwitchStatusApi());
             }),
       ),
     );
@@ -204,24 +211,12 @@ class _MultiDevicesWidgetState extends State<MultiDevicesWidget> {
             child: Row(children: [
               Expanded(
                 flex: 2,
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl ?? "",
+                child: Image.network(
+                  imageUrl ?? "",
                   height: screenWidth * 0.1,
                   width: screenWidth * 0.1,
                   color: Theme.of(context).appColors.textSecondary,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.grey.shade300,
-                    highlightColor: Colors.grey.shade100,
-                    child: Container(
-                      height: screenWidth * 0.1,
-                      width: screenWidth * 0.1,
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Icon(
+                  errorBuilder: (context, url, error) => Icon(
                     Icons.image_outlined,
                     color: Theme.of(context)
                         .appColors
@@ -462,24 +457,12 @@ class _MultiDevicesWidgetState extends State<MultiDevicesWidget> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CachedNetworkImage(
-                            imageUrl: imageUrl,
+                          Image.network(
+                            imageUrl,
                             height: screenWidth * 0.1,
                             width: screenWidth * 0.1,
                             color: Theme.of(context).appColors.background,
-                            placeholder: (context, url) => Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade100,
-                              child: Container(
-                                height: screenWidth * 0.1,
-                                width: screenWidth * 0.1,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Icon(
+                            errorBuilder: (context, url, error) => Icon(
                               Icons.image_outlined,
                               color: Theme.of(context)
                                   .appColors
@@ -499,7 +482,7 @@ class _MultiDevicesWidgetState extends State<MultiDevicesWidget> {
                           ),
                           Switch.adaptive(
                             value: switchStates[device["uid"]] ?? false,
-                            activeThumbColor:
+                            activeColor:
                                 Theme.of(context).appColors.greenButton,
                             activeTrackColor: Theme.of(context).appColors.green,
                             inactiveThumbColor: Theme.of(context)

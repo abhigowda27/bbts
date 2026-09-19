@@ -3,6 +3,7 @@ import 'package:bbts/blocs/login/login_event.dart';
 import 'package:bbts/screens/verify_otp_page.dart';
 import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../common/api_status.dart';
@@ -95,6 +96,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: phoneController,
                 keyboardType: TextInputType.number,
                 maxLength: 10,
+                disableCopyPaste: true,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Mobile number is required';

@@ -8,16 +8,17 @@ class FanSpeedControl extends StatefulWidget {
   final int deviceType;
   final String? deviceId;
   final String? fanStatus;
+  final bool isFromGroup;
 
-  const FanSpeedControl({
-    super.key,
-    required this.fanStatusList,
-    required this.device,
-    required this.toggleSwitch,
-    required this.deviceType,
-    required this.deviceId,
-    required this.fanStatus,
-  });
+  const FanSpeedControl(
+      {super.key,
+      required this.fanStatusList,
+      required this.device,
+      required this.toggleSwitch,
+      required this.deviceType,
+      required this.deviceId,
+      required this.fanStatus,
+      this.isFromGroup = false});
 
   @override
   State<FanSpeedControl> createState() => _FanSpeedControlState();
@@ -116,14 +117,22 @@ class _FanSpeedControlState extends State<FanSpeedControl> {
         int index = value.round().clamp(0, keys.length - 1);
         String level = keys[index];
         final statusId = widget.fanStatusList[level];
-
-        widget.toggleSwitch(
-          widget.deviceId,
-          level,
-          widget.device["uid"] ?? "",
-          widget.deviceType,
-        );
-
+        if (!widget.isFromGroup) {
+          widget.toggleSwitch(
+            widget.deviceId,
+            level,
+            widget.device["uid"] ?? "",
+            widget.deviceType,
+          );
+        } else {
+          widget.toggleSwitch(
+            widget.device["device_id"],
+            level,
+            widget.device["uid"],
+            widget.device["device_type"],
+            widget.device["main_uid"],
+          );
+        }
         setState(() {
           _currentValue = index.toDouble();
           widget.device["details"]["status"] = statusId;

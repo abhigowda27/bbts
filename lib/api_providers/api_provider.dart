@@ -11,6 +11,8 @@ import '../controllers/shared_preference.dart';
 class ApiProvider {
   final deviceId = DeviceUtils.getDeviceId();
   late String authCookie;
+  String? savedCookie = SharedPreferenceServices().getAuthCookie();
+
   final Dio _dio = Dio(BaseOptions(
     baseUrl: Constants.apiEndPoint,
     headers: {
@@ -51,7 +53,6 @@ class ApiProvider {
 
   Future<dynamic> addSwitch(Map<String, dynamic> payload) async {
     debugPrint("Payload Passing to Api=====> ${jsonEncode(payload)}");
-    String? savedCookie = SharedPreferenceServices().getAuthCookie();
     debugPrint("Header Passing to Api=====>$savedCookie");
     try {
       final response = await _dio
@@ -81,7 +82,6 @@ class ApiProvider {
   }
 
   Future<dynamic> getSwitchList() async {
-    String? savedCookie = SharedPreferenceServices().getAuthCookie();
     debugPrint("Header Passing to Api=====>$savedCookie");
     try {
       final response = await _dio
@@ -112,7 +112,6 @@ class ApiProvider {
 
   Future<dynamic> triggerSwitch(Map<String, dynamic> payload) async {
     debugPrint("Payload Passing to Api=====> ${jsonEncode(payload)}");
-    String? savedCookie = SharedPreferenceServices().getAuthCookie();
     debugPrint("Header Passing to Api=====>$savedCookie");
     try {
       final response = await _dio
@@ -143,7 +142,6 @@ class ApiProvider {
 
   Future<dynamic> deleteSwitch(Map<String, dynamic> payload) async {
     debugPrint("Payload Passing to Api=====> $payload");
-    String? savedCookie = SharedPreferenceServices().getAuthCookie();
     debugPrint("Header Passing to Api=====>$savedCookie");
     try {
       final response = await _dio
@@ -261,18 +259,38 @@ class ApiProvider {
   }
 
   Future<dynamic> getSwitchStatus(Map<String, dynamic> payload) async {
-    String? savedCookie = SharedPreferenceServices().getAuthCookie();
     debugPrint("Header Passing to Api=====>$savedCookie");
     debugPrint("payload Passing to Api=====>$payload");
     try {
       final response = await _dio
           .post(
             '/api/devices/details',
-            options: Options(
-              headers: {
-                'Cookie': savedCookie,
-              },
-            ),
+            options: Options(headers: {
+              'Cookie': savedCookie,
+            }, validateStatus: (status) => true),
+            data: payload,
+          )
+          .timeout(const Duration(seconds: 50));
+      debugPrint("Get Switch Status Api Response=====> $response");
+
+      debugPrint("Get Switch Status Api ResponseData=====> ${response.data}");
+      return response.data;
+    } catch (e) {
+      debugPrint("======$e");
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<dynamic> addGroup(Map<String, dynamic> payload) async {
+    debugPrint("Header Passing to Api=====>$savedCookie");
+    debugPrint("payload Passing to Api=====>$payload");
+    try {
+      final response = await _dio
+          .post(
+            '/api/v1/group/add',
+            options: Options(headers: {
+              'Cookie': savedCookie,
+            }, validateStatus: (status) => true),
             data: payload,
           )
           .timeout(const Duration(seconds: 15));
@@ -280,9 +298,62 @@ class ApiProvider {
 
       debugPrint("Get Switch Status Api ResponseData=====> ${response.data}");
       return response.data;
+    } catch (e) {
+      debugPrint("======$e");
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<dynamic> getGroupList() async {
+    debugPrint("Header Passing to Api=====>$savedCookie");
+    try {
+      final response = await _dio
+          .get(
+            '/api/v1/group/list',
+            data: {},
+            options: Options(
+              headers: {
+                'Cookie': savedCookie,
+              },
+            ),
+          )
+          .timeout(const Duration(seconds: 5));
+      debugPrint("Api Response=====> $response");
+
+      debugPrint("Api ResponseData=====> ${response.data}");
+      return response.data;
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception('Get Switch Status failed ${e.response?.data}');
+        throw Exception('getGroupList: ${e.response?.data}');
+      } else {
+        throw Exception('Network error: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<dynamic> deleteGroupData(Map<String, dynamic> payload) async {
+    debugPrint("Header Passing to Api=====>$savedCookie");
+    try {
+      final response = await _dio
+          .delete(
+            '/api/v1/group/delete',
+            queryParameters: payload,
+            options: Options(
+              headers: {
+                'Cookie': savedCookie,
+              },
+            ),
+          )
+          .timeout(const Duration(seconds: 5));
+      debugPrint("Api Response=====> $response");
+
+      debugPrint("Api ResponseData=====> ${response.data}");
+      return response.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception('getGroupList: ${e.response?.data}');
       } else {
         throw Exception('Network error: ${e.message}');
       }

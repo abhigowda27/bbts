@@ -30,7 +30,7 @@ class SwitchOnOff extends StatefulWidget {
 class _SwitchOnOffState extends State<SwitchOnOff> {
   late Timer _timer;
   final Duration _timerDuration = const Duration(minutes: 2);
-  late List<String> switchTypes;
+  late List<Map<String, dynamic>> switchTypes;
   bool switchOn = false;
   Map<String, dynamic> statusRes = {};
   late String selectedControl = "OFF";
@@ -40,7 +40,7 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
     "MEDIUM",
     "HIGH",
   ];
-  Future<List<String>> fetchSwitches() async {
+  Future<List<Map<String, dynamic>>> fetchSwitches() async {
     return widget.switchDetails.switchTypes;
   }
 
@@ -209,12 +209,12 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                             try {
                               // for (int i = 1; i <= totalSwitches; i++) {
                               //   await ApiConnect.hitApiPost(
-                              //       "${widget.switchDetails.iPAddress}/getSwitchcmd$i",
+                              //       "${widget.switchDetails.iPAddress}/getSwitchcmd",
                               //       {
                               //         "Lock_id": widget.switchDetails.switchId,
                               //         "lock_passkey":
                               //             widget.switchDetails.switchPassKey,
-                              //         "lock_cmd$i": value ? "ON$i" : "OFF$i",
+                              //         "lock_cmd": value ? "ON$i" : "OFF$i",
                               //       }).timeout(const Duration(seconds: 2));
                               //   debugPrint(value ? "ON$i" : "OFF$i");
                               // }
@@ -239,17 +239,21 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                                               ? 1
                                               : 0);
                                   i++) {
-                                final uri =
-                                    "${widget.switchDetails.iPAddress}/getSwitchcmd$i";
+                                final isFanCondition = widget.switchDetails
+                                        .selectedFan!.isNotEmpty &&
+                                    i == totalSwitches + 1;
+
+                                final uri = isFanCondition
+                                    ? "${widget.switchDetails.iPAddress}/getSwitchcmd"
+                                    : "${widget.switchDetails.iPAddress}/getSwitchcmd";
                                 final payload = {
                                   "Lock_id": widget.switchDetails.switchId,
                                   "lock_passkey":
                                       widget.switchDetails.switchPassKey,
-                                  "lock_cmd$i": (widget.switchDetails
-                                              .selectedFan!.isNotEmpty &&
-                                          i == totalSwitches + 1)
-                                      ? (value ? "HIGH" : "OFF")
-                                      : (value ? "ON$i" : "OFF$i"),
+                                  isFanCondition ? "lock_cmd" : "lock_cmd":
+                                      isFanCondition
+                                          ? (value ? "HIGH" : "OFF")
+                                          : (value ? "ON$i" : "OFF$i"),
                                 };
 
                                 apiCalls.add(
@@ -285,7 +289,7 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                   ),
                 ),
               ],
-              FutureBuilder<List<String>>(
+              FutureBuilder<List<Map<String, dynamic>>>(
                   future: fetchSwitches(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -307,12 +311,18 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                       shrinkWrap: true,
                       itemCount: snapshot.data?.length ?? 0,
                       itemBuilder: (context, index) {
-                        debugPrint(snapshot.data?[index]);
+                        debugPrint("${snapshot.data?[index]}");
+
+                        final switchMap = snapshot.data!;
+
+                        final switchName = switchMap[index]["name"].toString();
+                        final physicalIndex = switchMap[index]["order"];
                         return SwitchMatrixCard(
+                          switchName: switchName,
                           switchDetails: widget.switchDetails,
-                          index: index,
+                          index: physicalIndex - 1,
                           switchStatus:
-                              statusRes["ON${index + 1}"]?.toString() == "1",
+                              statusRes["ON$physicalIndex"]?.toString() == "1",
                           wifiName: _connectionStatus,
                         );
                       },
@@ -357,7 +367,7 @@ class _SwitchOnOffState extends State<SwitchOnOff> {
                             ),
                           ),
                           const SizedBox(width: 10),
-                          const Icon(
+                          const FaIcon(
                             FontAwesomeIcons.fan,
                             size: 35,
                             color: Colors.deepPurpleAccent,

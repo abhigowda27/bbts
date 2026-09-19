@@ -199,16 +199,13 @@ class _RouterCardState extends State<RouterCard> {
                   ),
                   if (isExpanded) ...[
                     Column(
-                      children: widget.routerDetails.switchTypes
-                          .asMap()
-                          .entries
-                          .map((entry) {
-                        int index = entry.key;
-                        String switchType = entry.value;
+                      children: widget.routerDetails.switchTypes.map((entry) {
+                        final index = entry["order"];
+                        final switchType = entry["name"];
                         return Row(
                           children: [
                             Text(
-                              '${index + 1}: ',
+                              '$index: ',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             Expanded(
@@ -274,7 +271,10 @@ class _RouterCardState extends State<RouterCard> {
 
                                     setState(() {
                                       widget.routerDetails.switchTypes
-                                          .remove(switchType);
+                                          .removeWhere(
+                                        (element) =>
+                                            element["name"] == switchType,
+                                      );
                                     });
                                   }
                                 },

@@ -150,12 +150,12 @@ class _GroupSwitchOnOffState extends State<GroupSwitchOnOff> {
                               try {
                                 for (int i = 1; i <= totalSwitches; i++) {
                                   await ApiConnect.hitApiPost(
-                                      "${switchDetails.iPAddress}/getSwitchcmd$i",
+                                      "${switchDetails.iPAddress}/getSwitchcmd",
                                       {
                                         "Lock_id": switchDetails.switchID,
                                         "lock_passkey":
                                             switchDetails.switchPasskey,
-                                        "lock_cmd$i": value ? "ON$i" : "OFF$i",
+                                        "lock_cmd": value ? "ON$i" : "OFF$i",
                                       }).timeout(const Duration(seconds: 5));
                                   debugPrint(value ? "ON" : "OFF");
                                 }

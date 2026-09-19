@@ -2,6 +2,7 @@ import 'package:bbts/blocs/switch/switch_event.dart';
 import 'package:bbts/common/api_status.dart';
 import 'package:bbts/common/common_state.dart';
 import 'package:bbts/repositories/login_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SwitchBloc extends Bloc<SwitchEvent, CommonState> {
@@ -11,6 +12,9 @@ class SwitchBloc extends Bloc<SwitchEvent, CommonState> {
     on<DeleteSwitchEvent>(_onDeleteSwitchEvent);
     on<GetSwitchListEvent>(_onGetSwitchListEvent);
     on<GetSwitchStatus>(_onGetSwitchStatus);
+    on<AddGroupEvent>(_onAddGroupEvent);
+    on<GetGroupListEvent>(_onGetGroupListEvent);
+    on<DeleteGroupEvent>(_onDeleteGroupEvent);
   }
 
   Future<void> _onGetSwitchListEvent(
@@ -86,12 +90,72 @@ class SwitchBloc extends Bloc<SwitchEvent, CommonState> {
     try {
       final payload = event.payload;
       Repository addSwitchRepository = Repository();
-      final deleteSwitchResponse =
+      final getSwitchStatusResponse =
           await addSwitchRepository.getSwitchStatus(payload);
+
+      if (getSwitchStatusResponse['status'] == 'error') {
+        emit(state.copyWith(
+            apiStatus: ApiFailureState(
+                exception: getSwitchStatusResponse["message"] ??
+                    "Something Went Wrong")));
+      } else {
+        emit(state.copyWith(
+            apiStatus: ApiResponse(response: getSwitchStatusResponse)));
+      }
+    } catch (e) {
+      emit(state.copyWith(apiStatus: ApiFailureState(exception: e)));
+    }
+  }
+
+  Future<void> _onAddGroupEvent(
+      AddGroupEvent event, Emitter<CommonState> emit) async {
+    emit(state.copyWith(apiStatus: ApiLoadingState()));
+    try {
+      final payload = event.payload;
+      Repository addGroupRepository = Repository();
+      final getSwitchStatusResponse =
+          await addGroupRepository.addGroupRepo(payload);
+
+      if (getSwitchStatusResponse['status'] == 'error') {
+        emit(state.copyWith(
+            apiStatus: ApiFailureState(
+                exception: getSwitchStatusResponse["message"] ??
+                    "Something Went Wrong")));
+      } else {
+        emit(state.copyWith(
+            apiStatus: ApiResponse(response: getSwitchStatusResponse)));
+      }
+    } catch (e) {
+      emit(state.copyWith(apiStatus: ApiFailureState(exception: e)));
+    }
+  }
+
+  Future<void> _onGetGroupListEvent(
+      GetGroupListEvent event, Emitter<CommonState> emit) async {
+    emit(state.copyWith(apiStatus: ApiLoadingState()));
+    try {
+      Repository getGroupListRepository = Repository();
+      final groupListResponse = await getGroupListRepository.getGroupListRepo();
+
+      emit(state.copyWith(apiStatus: ApiResponse(response: groupListResponse)));
+    } catch (e) {
+      emit(state.copyWith(apiStatus: ApiFailureState(exception: e)));
+    }
+  }
+
+  Future<void> _onDeleteGroupEvent(
+      DeleteGroupEvent event, Emitter<CommonState> emit) async {
+    emit(state.copyWith(apiStatus: ApiLoadingState()));
+    try {
+      final payload = {"id": event.groupUuid};
+      Repository addSwitchRepository = Repository();
+      final deleteSwitchResponse =
+          await addSwitchRepository.deleteGroupDataRepo(payload);
 
       emit(state.copyWith(
           apiStatus: ApiResponse(response: deleteSwitchResponse)));
     } catch (e) {
+      debugPrint("Error: $e");
       emit(state.copyWith(apiStatus: ApiFailureState(exception: e)));
     }
   }

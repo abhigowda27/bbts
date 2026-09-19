@@ -1,4 +1,5 @@
 import 'package:bbts/theme/app_colors_extension.dart';
+import 'package:bbts/widgets/common_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,30 +14,32 @@ class RouterListCard extends StatefulWidget {
     required this.index,
     required this.switchStatus,
     required this.wifiName,
+    this.onToggle,
     super.key,
   });
   final RouterDetails routerDetails;
   final int index;
   final bool switchStatus;
   final String wifiName;
+  final Future<void> Function(bool)? onToggle;
   @override
   State<RouterListCard> createState() => _RouterListCardState();
 }
 
 class _RouterListCardState extends State<RouterListCard> {
   late int slNo;
-  bool switchOn = false;
+  bool switchOff = false;
 
   @override
   void initState() {
-    debugPrint(widget.switchStatus.toString());
     super.initState();
-    slNo = widget.index + 1;
-    switchOn = widget.switchStatus;
+    slNo = widget.routerDetails.switchTypes[widget.index]['order'];
+    switchOff = widget.switchStatus;
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("${widget.switchStatus}");
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12.0),
       decoration: BoxDecoration(
@@ -55,14 +58,14 @@ class _RouterListCardState extends State<RouterListCard> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Icon(
+          FaIcon(
             FontAwesomeIcons.solidLightbulb,
-            color: switchOn ? Colors.yellow : Colors.grey,
+            color: switchOff ? Colors.yellow : Colors.grey,
             size: 40,
           ),
           Flexible(
             child: Text(
-              widget.routerDetails.switchTypes[widget.index],
+              widget.routerDetails.switchTypes[widget.index]['name'],
               style: Theme.of(context).textTheme.bodyLarge,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -70,49 +73,68 @@ class _RouterListCardState extends State<RouterListCard> {
           ),
           Switch(
             onChanged: (value) async {
-              if (!widget.wifiName.contains(widget.routerDetails.routerName) &&
-                  !widget.routerDetails.routerName.contains(widget.wifiName)) {
+              if (!widget.wifiName.toLowerCase().contains(
+                      widget.routerDetails.routerName.toLowerCase()) &&
+                  !widget.routerDetails.routerName
+                      .toLowerCase()
+                      .contains(widget.wifiName.toLowerCase())) {
                 showToast(
                     "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed");
                 return;
               }
+
+              if (widget.onToggle != null) {
+                await widget.onToggle!(value);
+                return;
+              }
+
               try {
                 if (value) {
-                  ApiConnect.hitApiPost(
-                      "${widget.routerDetails.iPAddress}/getSwitchcmd$slNo", {
+                  await ApiConnect.hitApiPost(
+                      "${widget.routerDetails.iPAddress}/getSwitchcmd", {
                     "Lock_id": widget.routerDetails.switchID,
                     "lock_passkey": widget.routerDetails.switchPasskey,
-                    "lock_cmd$slNo": "ON$slNo"
+                    "lock_cmd": "ON$slNo"
                   });
-                  setState(() {
-                    switchOn = true;
-                  });
-                } else if (!value) {
-                  ApiConnect.hitApiPost(
-                      "${widget.routerDetails.iPAddress}/getSwitchcmd$slNo", {
-                    // "192.168.1.1/getSwitchcmd",
+                  if (context.mounted) {
+                    commonSnackBar(
+                        context, "Device $slNo turned ON Successfully");
+                  }
 
+                  setState(() {
+                    switchOff = true;
+                  });
+                } else {
+                  await ApiConnect.hitApiPost(
+                      "${widget.routerDetails.iPAddress}/getSwitchcmd", {
                     "Lock_id": widget.routerDetails.switchID,
                     "lock_passkey": widget.routerDetails.switchPasskey,
-                    "lock_cmd$slNo": "OFF$slNo"
+                    "lock_cmd": "OFF$slNo"
                   });
+                  if (context.mounted) {
+                    commonSnackBar(
+                        context, "Device $slNo turned OFF Successfully");
+                  }
                   setState(() {
-                    switchOn = false;
+                    switchOff = false;
                   });
-                } else {}
-              } on DioException catch (e) {
-                final scaffold = ScaffoldMessenger.of(context);
-                scaffold.showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        "Unable to perform. Try Again. Error: ${e.message}"),
-                  ),
-                );
+                }
+              } on DioException catch (e, s) {
+                debugPrint("$e $s");
+                if (context.mounted) {
+                  final scaffold = ScaffoldMessenger.of(context);
+                  scaffold.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          "Unable to perform. Try Again. Error: ${e.response}"),
+                    ),
+                  );
+                }
               } catch (e) {
                 debugPrint(e.toString());
               }
             },
-            value: switchOn,
+            value: switchOff,
             activeThumbColor: Theme.of(context).appColors.greenButton,
             activeTrackColor: Theme.of(context).appColors.green,
             inactiveThumbColor: Theme.of(context).appColors.redButton,

@@ -1,7 +1,10 @@
 import 'dart:async';
 
+import 'package:bbts/controllers/udp_services.dart';
 import 'package:bbts/main.dart';
+import 'package:bbts/screens/bbtm_screens/controllers/storage.dart';
 import 'package:bbts/theme/app_colors_extension.dart';
+import 'package:bbts/widgets/common_snackbar.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +32,7 @@ class RouterOnOff extends StatefulWidget {
 
 class _RouterOnOffState extends State<RouterOnOff> {
   late Timer _timer;
+  bool _isInitializing = true;
   late String selectedControl = "OFF";
   final List<String> controls = [
     "OFF",
@@ -38,11 +42,13 @@ class _RouterOnOffState extends State<RouterOnOff> {
   ];
 
   final Duration _timerDuration = const Duration(minutes: 2);
-  late List<String> switchTypes;
+  late List<Map<String, dynamic>> switchTypes;
   bool switchOn = false;
   Map<String, dynamic> statusRes = {};
-  Future<List<String>> fetchSwitches() async {
-    return widget.routerDetails.switchTypes;
+  Future<List<Map<String, dynamic>>> fetchSwitches() async {
+    final types =
+        List<Map<String, dynamic>>.from(widget.routerDetails.switchTypes);
+    return types;
   }
 
   late NetworkService _networkService;
@@ -55,7 +61,7 @@ class _RouterOnOffState extends State<RouterOnOff> {
     super.initState();
     _startTimer();
     _networkService = NetworkService();
-    updateSwitch();
+    _initializeDevice();
     switchTypes = widget.routerDetails.switchTypes;
     _initNetworkInfo();
     connectivitySubscription = _connectivity.onConnectivityChanged
@@ -64,39 +70,157 @@ class _RouterOnOffState extends State<RouterOnOff> {
     });
   }
 
+  Future<void> _initializeDevice() async {
+    try {
+      if (mounted) {
+        setState(() {
+          _isInitializing = true;
+        });
+      }
+
+      // UDP discovery ONLY during initial page load
+      final discovery = Esp32MultiDiscovery();
+
+      final List<SmartDevice> devices = await discovery.discoverAllDevices();
+
+      debugPrint(
+        'Discovered ${devices.length} devices',
+      );
+
+      // Match switch ID
+      final SmartDevice? matchedDevice =
+          devices.cast<SmartDevice?>().firstWhere(
+                (device) => device?.id == widget.routerDetails.switchID,
+                orElse: () => null,
+              );
+
+      if (matchedDevice != null) {
+        debugPrint(
+          'Matched device: ${matchedDevice.id}',
+        );
+
+        debugPrint(
+          'Stored IP: ${widget.routerDetails.iPAddress}',
+        );
+
+        debugPrint(
+          'Discovered IP: ${matchedDevice.ip}',
+        );
+
+        // Update IP only if changed
+        if (widget.routerDetails.iPAddress != matchedDevice.ip) {
+          debugPrint(
+            'IP changed: '
+            '${widget.routerDetails.iPAddress} '
+            '→ ${matchedDevice.ip}',
+          );
+
+          widget.routerDetails.iPAddress = matchedDevice.ip;
+
+          await StorageController().updateRouterIp(
+            widget.routerDetails.switchID,
+            matchedDevice.ip,
+          );
+        }
+      } else {
+        debugPrint(
+          'Device ${widget.routerDetails.switchID} '
+          'not found on network',
+        );
+      }
+
+      // After UDP validation, get the switch status
+      await updateSwitch();
+    } catch (e) {
+      debugPrint(
+        'Initial device validation error: $e',
+      );
+
+      if (mounted) {
+        setState(() {
+          _isInitializing = false;
+        });
+      }
+    }
+  }
+
   Future<void> updateSwitch() async {
-    Map<String, dynamic> apiRes = await ApiConnect.hitApiGet(
-        "${widget.routerDetails.iPAddress}/Switchstatus");
-    final Map<String, dynamic> res = Map<String, dynamic>.from(apiRes["data"]);
-    int totalSwitches = widget.routerDetails.switchTypes.length;
-    setState(() {
+    try {
+      final Map<String, dynamic> apiRes = await ApiConnect.hitApiGet(
+        "${widget.routerDetails.iPAddress}/Switchstatus",
+      );
+
+      final Map<String, dynamic> res = Map<String, dynamic>.from(
+        apiRes["data"],
+      );
+
       bool anyClosed = false;
-      for (int i = 1; i <= totalSwitches; i++) {
-        final key = "ON$i";
-        if (res.containsKey(key)) {
-          if (res[key].toString() == "0") {
-            anyClosed = true;
-            break;
-          }
+
+      for (var sType in widget.routerDetails.switchTypes) {
+        final int physicalIndex = sType['order'];
+        final String key = "ON$physicalIndex";
+
+        if (res.containsKey(key) && res[key].toString() == "0") {
+          anyClosed = true;
+          break;
         }
       }
-      statusRes = res;
-      switchOn = !anyClosed;
-    });
-    setState(() {
-      if (res["FAN"] == "LOW") {
-        debugPrint("low");
-        selectedControl = "LOW";
-      } else if (res["FAN"] == "MED") {
-        debugPrint("medium");
-        selectedControl = "MEDIUM";
-      } else if (res["FAN"] == "HIGH") {
-        debugPrint("high");
-        selectedControl = "HIGH";
-      } else {
-        selectedControl = "OFF";
+
+      if (!mounted) return;
+
+      setState(() {
+        statusRes = res;
+        switchOn = !anyClosed;
+
+        if (res["FAN"] == "LOW") {
+          selectedControl = "LOW";
+        } else if (res["FAN"] == "MED") {
+          selectedControl = "MEDIUM";
+        } else if (res["FAN"] == "HIGH") {
+          selectedControl = "HIGH";
+        } else {
+          selectedControl = "OFF";
+        }
+
+        _isInitializing = false;
+      });
+
+      if (res["cert_log"] != null) {
+        showCertLogPopup(res["cert_log"]);
       }
-    });
+    } catch (e) {
+      debugPrint(
+        'updateSwitch error: $e',
+      );
+
+      if (mounted) {
+        setState(() {
+          _isInitializing = false;
+        });
+      }
+    }
+  }
+
+  void showCertLogPopup(String certLog) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("🔒 Security Certificate Details"),
+        content: SingleChildScrollView(
+          child: Text(certLog),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -145,352 +269,327 @@ class _RouterOnOffState extends State<RouterOnOff> {
     return GestureDetector(
       onTap: () => _resetTimer,
       child: Scaffold(
-        appBar: AppBar(title: Text(widget.routerDetails.routerName)),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            updateSwitch();
-          },
-          child: const Icon(
-            Icons.refresh_rounded,
-            color: Colors.white,
+          appBar: AppBar(title: Text(widget.routerDetails.routerName)),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              updateSwitch();
+            },
+            child: const Icon(
+              Icons.refresh_rounded,
+              color: Colors.white,
+            ),
           ),
-        ),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.routerDetails.switchTypes.isNotEmpty) ...[
-                Container(
-                  margin: const EdgeInsets.all(20),
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 16.0),
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withValues(alpha: 0.2),
-                        blurRadius: 7,
-                        offset: const Offset(5, 5),
-                      ),
-                    ],
-                    color: Theme.of(context)
-                        .appColors
-                        .primary
-                        .withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.routerDetails.switchName,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Theme.of(context).appColors.background),
-                      ),
-                      if (widget.routerDetails.switchTypes.length > 1)
-                        Switch(
-                          onChanged: (value) async {
-                            if (!_connectionStatus.contains(
-                                    widget.routerDetails.routerName) &&
-                                !widget.routerDetails.routerName
-                                    .contains(_connectionStatus)) {
-                              showToast(
-                                  "Please connect WIFI to ${widget.routerDetails.routerName} to proceed");
-                              return;
-                            }
-
-                            // Connected to router without internet → Make local API calls
-                            final totalSwitches =
-                                widget.routerDetails.switchTypes.length;
-
-                            try {
-                              List<Future<void>> apiCalls = [];
-
-                              for (int i = 1;
-                                  i <=
-                                      totalSwitches +
-                                          (widget.routerDetails.selectedFan!
-                                                  .isNotEmpty
-                                              ? 1
-                                              : 0);
-                                  i++) {
-                                final uri =
-                                    "${widget.routerDetails.iPAddress}/getSwitchcmd$i";
-                                final payload = {
-                                  "Lock_id": widget.routerDetails.switchID,
-                                  "lock_passkey":
-                                      widget.routerDetails.switchPasskey,
-                                  "lock_cmd$i": (widget.routerDetails
-                                              .selectedFan!.isNotEmpty &&
-                                          i == totalSwitches + 1)
-                                      ? (value ? "HIGH" : "OFF")
-                                      : (value ? "ON$i" : "OFF$i"),
-                                };
-
-                                apiCalls.add(
-                                  ApiConnect.hitApiPost(uri, payload)
-                                      .timeout(const Duration(seconds: 1))
-                                      .then((_) =>
-                                          debugPrint(value ? "ON" : "OFF"))
-                                      .catchError((e) =>
-                                          debugPrint("Error on switch $i: $e")),
-                                );
-                              }
-
-                              setState(() {
-                                switchOn = value;
-                              });
-
-                              await Future.wait(apiCalls);
-                              await updateSwitch();
-                            } catch (e) {
-                              debugPrint('Local API call timed out.');
-                            }
-                          },
-                          value: switchOn,
-                          activeThumbColor:
-                              Theme.of(context).appColors.greenButton,
-                          activeTrackColor: Theme.of(context).appColors.green,
-                          inactiveThumbColor:
-                              Theme.of(context).appColors.redButton,
-                          inactiveTrackColor: Theme.of(context).appColors.red,
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-              FutureBuilder<List<String>>(
-                  future: fetchSwitches(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator(
-                          color: Theme.of(context).appColors.buttonBackground);
-                    }
-                    if (snapshot.hasError) {
-                      return const Text("ERROR");
-                    }
-                    return GridView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: snapshot.data?.length ?? 0,
-                      itemBuilder: (context, index) {
-                        return RouterListCard(
-                          routerDetails: widget.routerDetails,
-                          index: index,
-                          switchStatus:
-                              statusRes["ON${index + 1}"]?.toString() == "1",
-                          wifiName: _connectionStatus,
-                        );
-                      },
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: isLargeScreen ? 3 : 2,
-                        childAspectRatio: 1,
-                        crossAxisSpacing: 20,
-                        mainAxisSpacing: 20,
-                      ),
-                    );
-                  }),
-              if (widget.routerDetails.selectedFan != null &&
-                  widget.routerDetails.selectedFan!.isNotEmpty) ...[
-                // Container(
-                //   padding: const EdgeInsets.all(20),
-                //   margin: const EdgeInsets.all(15),
-                //   decoration: BoxDecoration(
-                //     gradient: const LinearGradient(
-                //       colors: [
-                //         Colors.blueAccent,
-                //         Colors.lightBlueAccent,
-                //         Colors.greenAccent,
-                //       ],
-                //       begin: Alignment.topLeft,
-                //       end: Alignment.bottomRight,
-                //     ),
-                //     borderRadius: BorderRadius.circular(20),
-                //     boxShadow: const [
-                //       BoxShadow(
-                //         color: Colors.black26,
-                //         spreadRadius: 2,
-                //         blurRadius: 6,
-                //         offset: Offset(2, 2),
-                //       ),
-                //     ],
-                //   ),
-                //   child: Column(
-                //     children: [
-                //       Row(
-                //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //         children: [
-                //           Text(
-                //             widget.routerDetails.selectedFan ?? "No Name",
-                //             style: TextStyle(
-                //               color: Colors.white,
-                //               fontSize: width * 0.05,
-                //               fontWeight: FontWeight.bold,
-                //             ),
-                //           ),
-                //           const SizedBox(width: 10),
-                //           const Icon(
-                //             FontAwesomeIcons.fan,
-                //             size: 35,
-                //             color: Colors.deepPurpleAccent,
-                //           )
-                //         ],
-                //       ),
-                //       CupertinoSlidingSegmentedControl<String>(
-                //         groupValue: selectedControl,
-                //         backgroundColor: Colors.transparent,
-                //         thumbColor: const Color(0xff2cd2ec),
-                //         children: {
-                //           for (var control in controls)
-                //             control: Text(
-                //               control,
-                //               style: const TextStyle(
-                //                 color: Colors.white,
-                //                 fontSize: 18,
-                //                 fontWeight: FontWeight.bold,
-                //               ),
-                //             ),
-                //         },
-                //         onValueChanged: (value) async {
-                //           if (!_connectionStatus
-                //                   .contains(widget.routerDetails.routerName) &&
-                //               !widget.routerDetails.routerName
-                //                   .contains(_connectionStatus)) {
-                //             showToast(
-                //               context,
-                //               "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed",
-                //             );
-                //             setState(() {});
-                //             return;
-                //           }
-                //           setState(() {
-                //             selectedControl = value!;
-                //           });
-                //           debugPrint(value);
-                //           await sendFanCommand(value!);
-                //         },
-                //       ),
-                //     ],
-                //   ),
-                // )
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  margin: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Colors.blueAccent,
-                        Colors.lightBlueAccent,
-                        Colors.greenAccent,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        spreadRadius: 2,
-                        blurRadius: 6,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            widget.routerDetails.selectedFan ?? "No Name",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(
-                                    color:
-                                        Theme.of(context).appColors.background),
-                          ),
-                          const SizedBox(width: 10),
-                          const Icon(
-                            FontAwesomeIcons.fan,
-                            size: 35,
-                            color: Colors.deepPurpleAccent,
-                          )
-                        ],
-                      ),
-                      Divider(
-                        color: Theme.of(context).appColors.background,
-                      ),
-                      SleekCircularSlider(
-                        min: 0,
-                        max: controls.length.toDouble() - 1,
-                        initialValue:
-                            controls.indexOf(selectedControl).toDouble(),
-                        appearance: CircularSliderAppearance(
-                          size: 150,
-                          customWidths: CustomSliderWidths(
-                            trackWidth: 8,
-                            progressBarWidth: 15,
-                            handlerSize: 12,
-                          ),
-                          customColors: CustomSliderColors(
-                            trackColors: [
-                              Colors.blueAccent,
-                              Colors.lightBlueAccent,
-                              Colors.greenAccent,
-                            ],
-                            progressBarColors: [
-                              Colors.blueAccent,
-                              Colors.lightBlueAccent,
-                              Colors.greenAccent,
-                            ],
-                            dotColor: Theme.of(context).appColors.background,
-                            shadowColor: Colors.black26,
-                          ),
-                          infoProperties: InfoProperties(
-                            mainLabelStyle: Theme.of(context)
-                                .textTheme
-                                .titleLarge!
-                                .copyWith(
-                                    color:
-                                        Theme.of(context).appColors.background),
-                            modifier: (value) {
-                              final index = value.round();
-                              return controls[index]; // show control name
-                            },
-                          ),
-                        ),
-                        onChangeEnd: (value) async {
-                          final control = controls[value.round()];
-                          if (!_connectionStatus
-                                  .contains(widget.routerDetails.routerName) &&
-                              !widget.routerDetails.routerName
-                                  .contains(_connectionStatus)) {
-                            showToast(
-                              "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed",
-                            );
-                            setState(() {});
-                            return;
-                          }
-                          setState(() {
-                            selectedControl = control;
-                          });
-                          debugPrint(control);
-                          await sendFanCommand(control);
-                        },
-                      ),
-                    ],
+          body: _isInitializing
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: Theme.of(context).appColors.buttonBackground,
                   ),
                 )
-              ]
-            ],
-          ),
-        ),
-      ),
+              : SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (widget.routerDetails.switchTypes.isNotEmpty) ...[
+                        Container(
+                          margin: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 16.0),
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withValues(alpha: 0.2),
+                                blurRadius: 7,
+                                offset: const Offset(5, 5),
+                              ),
+                            ],
+                            color: Theme.of(context)
+                                .appColors
+                                .primary
+                                .withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.routerDetails.switchName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                        color: Theme.of(context)
+                                            .appColors
+                                            .background),
+                              ),
+                              if (widget.routerDetails.switchTypes.length > 1)
+                                Switch(
+                                  onChanged: (value) async {
+                                    if (!_connectionStatus.contains(
+                                            widget.routerDetails.routerName) &&
+                                        !widget.routerDetails.routerName
+                                            .contains(_connectionStatus)) {
+                                      showToast(
+                                          "Please connect WIFI to ${widget.routerDetails.routerName} to proceed");
+                                      return;
+                                    }
+
+                                    // Connected to router without internet → Make local API calls
+                                    final totalSwitches =
+                                        widget.routerDetails.switchTypes.length;
+
+                                    try {
+                                      List<Future<void>> apiCalls = [];
+
+                                      for (var sType
+                                          in widget.routerDetails.switchTypes) {
+                                        final int physicalIndex =
+                                            sType['order'];
+                                        final uri =
+                                            "${widget.routerDetails.iPAddress}/getSwitchcmd";
+                                        final payload = {
+                                          "Lock_id":
+                                              widget.routerDetails.switchID,
+                                          "lock_passkey": widget
+                                              .routerDetails.switchPasskey,
+                                          "lock_cmd": value
+                                              ? "ON$physicalIndex"
+                                              : "OFF$physicalIndex",
+                                        };
+
+                                        apiCalls.add(
+                                          ApiConnect.hitApiPost(uri, payload)
+                                              .timeout(
+                                                  const Duration(seconds: 1))
+                                              .then((_) => debugPrint(
+                                                  value ? "ON" : "OFF"))
+                                              .catchError((e) => debugPrint(
+                                                  "Error on switch $physicalIndex: $e")),
+                                        );
+                                      }
+
+                                      if (widget.routerDetails.selectedFan!
+                                          .isNotEmpty) {
+                                        final uri =
+                                            "${widget.routerDetails.iPAddress}/getSwitchcmd";
+                                        final payload = {
+                                          "Lock_id":
+                                              widget.routerDetails.switchID,
+                                          "lock_passkey": widget
+                                              .routerDetails.switchPasskey,
+                                          "lock_cmd": value ? "HIGH" : "OFF",
+                                        };
+                                        apiCalls.add(
+                                          ApiConnect.hitApiPost(uri, payload)
+                                              .timeout(
+                                                  const Duration(seconds: 1))
+                                              .catchError((e) => debugPrint(
+                                                  "Error on fan: $e")),
+                                        );
+                                      }
+
+                                      setState(() {
+                                        switchOn = value;
+                                      });
+
+                                      await Future.wait(apiCalls);
+                                      await updateSwitch();
+                                      if (value) {
+                                        commonSnackBar(
+                                            navigatorKey.currentContext!,
+                                            "Device turned ONALL Successfully");
+                                      } else {
+                                        commonSnackBar(
+                                            navigatorKey.currentContext!,
+                                            "Device turned OFFALL Successfully");
+                                      }
+                                    } catch (e) {
+                                      debugPrint('Local API call timed out.');
+                                    }
+                                  },
+                                  value: switchOn,
+                                  activeThumbColor:
+                                      Theme.of(context).appColors.greenButton,
+                                  activeTrackColor:
+                                      Theme.of(context).appColors.green,
+                                  inactiveThumbColor:
+                                      Theme.of(context).appColors.redButton,
+                                  inactiveTrackColor:
+                                      Theme.of(context).appColors.red,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                          future: fetchSwitches(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator(
+                                  color: Theme.of(context)
+                                      .appColors
+                                      .buttonBackground);
+                            }
+                            if (snapshot.hasError) {
+                              return const Text("ERROR");
+                            }
+                            final switches = snapshot.data ?? [];
+                            return GridView.builder(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 25),
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: switches.length,
+                              itemBuilder: (context, index) {
+                                final switchInfo = switches[index];
+
+                                final physicalIndex =
+                                    switchInfo['order'] as int;
+                                debugPrint("======$physicalIndex");
+                                return RouterListCard(
+                                  routerDetails: widget.routerDetails,
+                                  index: index,
+                                  switchStatus: statusRes["ON$physicalIndex"]
+                                          ?.toString() ==
+                                      "1",
+                                  wifiName: _connectionStatus,
+                                );
+                              },
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: isLargeScreen ? 3 : 2,
+                                childAspectRatio: 1,
+                                crossAxisSpacing: 20,
+                                mainAxisSpacing: 20,
+                              ),
+                            );
+                          }),
+                      if (widget.routerDetails.selectedFan != null &&
+                          widget.routerDetails.selectedFan!.isNotEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Colors.blueAccent,
+                                Colors.lightBlueAccent,
+                                Colors.greenAccent,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                spreadRadius: 2,
+                                blurRadius: 6,
+                                offset: Offset(2, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    widget.routerDetails.selectedFan ??
+                                        "No Name",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .appColors
+                                                .background),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const FaIcon(
+                                    FontAwesomeIcons.fan,
+                                    size: 35,
+                                    color: Colors.deepPurpleAccent,
+                                  )
+                                ],
+                              ),
+                              Divider(
+                                color: Theme.of(context).appColors.background,
+                              ),
+                              SleekCircularSlider(
+                                min: 0,
+                                max: controls.length.toDouble() - 1,
+                                initialValue: controls
+                                    .indexOf(selectedControl)
+                                    .toDouble(),
+                                appearance: CircularSliderAppearance(
+                                  size: 150,
+                                  customWidths: CustomSliderWidths(
+                                    trackWidth: 8,
+                                    progressBarWidth: 15,
+                                    handlerSize: 12,
+                                  ),
+                                  customColors: CustomSliderColors(
+                                    trackColors: [
+                                      Colors.blueAccent,
+                                      Colors.lightBlueAccent,
+                                      Colors.greenAccent,
+                                    ],
+                                    progressBarColors: [
+                                      Colors.blueAccent,
+                                      Colors.lightBlueAccent,
+                                      Colors.greenAccent,
+                                    ],
+                                    dotColor:
+                                        Theme.of(context).appColors.background,
+                                    shadowColor: Colors.black26,
+                                  ),
+                                  infoProperties: InfoProperties(
+                                    mainLabelStyle: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .appColors
+                                                .background),
+                                    modifier: (value) {
+                                      final index = value.round();
+                                      return controls[
+                                          index]; // show control name
+                                    },
+                                  ),
+                                ),
+                                onChangeEnd: (value) async {
+                                  final control = controls[value.round()];
+                                  if (!_connectionStatus.contains(
+                                          widget.routerDetails.routerName) &&
+                                      !widget.routerDetails.routerName
+                                          .contains(_connectionStatus)) {
+                                    showToast(
+                                      "Please Connect WIFI to ${widget.routerDetails.routerName} to proceed",
+                                    );
+                                    setState(() {});
+                                    return;
+                                  }
+                                  setState(() {
+                                    selectedControl = control;
+                                  });
+                                  debugPrint(control);
+                                  await sendFanCommand(control);
+                                },
+                              ),
+                            ],
+                          ),
+                        )
+                      ]
+                    ],
+                  ),
+                )),
     );
   }
 

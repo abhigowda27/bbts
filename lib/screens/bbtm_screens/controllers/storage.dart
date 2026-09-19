@@ -12,7 +12,15 @@ import '../models/schedule_model.dart';
 import '../models/switch_model.dart';
 
 class StorageController {
-  final FlutterSecureStorage storage = const FlutterSecureStorage();
+  final FlutterSecureStorage storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      keyCipherAlgorithm:
+          KeyCipherAlgorithm.RSA_ECB_OAEPwithSHA_256andMGF1Padding,
+      storageCipherAlgorithm: StorageCipherAlgorithm.AES_GCM_NoPadding,
+      migrateOnAlgorithmChange: true,
+      migrateWithBackup: true,
+    ),
+  );
 
   // Switch
 
@@ -194,8 +202,10 @@ class StorageController {
         (element) => element.switchSSID == switchDetails.switchSSID);
 
     if (index != -1) {
-      // Remove the specific switch type
-      switchList[index].switchTypes.remove(typeToRemove);
+      // Remove the specific switch type map where name matches
+      switchList[index].switchTypes.removeWhere(
+            (element) => element["name"] == typeToRemove,
+          );
 
       // If no switchTypes left, remove the whole switch
       if (switchList[index].switchTypes.isEmpty) {
@@ -249,6 +259,37 @@ class StorageController {
   }
 
   // ROUTERS
+
+  Future<void> updateRouterIp(
+    String switchId,
+    String newIp,
+  ) async {
+    List<RouterDetails> routersList = await readRouters();
+
+    final index = routersList.indexWhere(
+      (element) => element.switchID == switchId,
+    );
+
+    if (index == -1) {
+      debugPrint('Router with ID $switchId not found');
+      return;
+    }
+
+    // Update only the IP
+    routersList[index].iPAddress = newIp;
+
+    await storage.write(
+      key: "routers",
+      value: json.encode(
+        routersList.map((e) => e.toJson()).toList(),
+      ),
+    );
+
+    debugPrint(
+      'Router IP updated: $switchId → $newIp',
+    );
+  }
+
   Future<void> updateRouter(
     RouterDetails routerDetails,
   ) async {
@@ -318,9 +359,10 @@ class StorageController {
         routerList.indexWhere((element) => element.switchID == switchId);
 
     if (index != -1) {
-      // Remove the specific switchType
-      routerList[index].switchTypes.remove(switchTypeToRemove);
-
+      // Remove the specific switchType map where name matches
+      routerList[index].switchTypes.removeWhere(
+            (element) => element["name"] == switchTypeToRemove,
+          );
       // If no switchTypes left, remove the whole router
       if (routerList[index].switchTypes.isEmpty) {
         routerList.removeAt(index);

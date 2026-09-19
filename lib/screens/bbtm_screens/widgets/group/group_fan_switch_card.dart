@@ -140,14 +140,14 @@ class _GroupFanSwitchCardState extends State<GroupFanSwitchCard> {
                   onPressed: () {
                     updateSwitch();
                   },
-                  icon: Icon(
+                  icon: FaIcon(
                     FontAwesomeIcons.arrowsRotate,
                     color: Theme.of(context).appColors.background,
                   ),
                 ),
               ),
               const SizedBox(width: 10),
-              const Icon(
+              const FaIcon(
                 FontAwesomeIcons.fan,
                 size: 35,
                 color: Colors.deepPurpleAccent,

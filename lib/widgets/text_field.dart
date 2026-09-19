@@ -1,5 +1,6 @@
 import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -11,7 +12,8 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final void Function(String query)? onChanged;
   final Icon? prefixIcon;
-
+  final List<TextInputFormatter>? inputFormatters;
+  final bool? disableCopyPaste;
   const CustomTextField({
     super.key,
     required this.controller,
@@ -23,11 +25,16 @@ class CustomTextField extends StatelessWidget {
     this.suffixIcon,
     this.onChanged,
     this.prefixIcon,
+    this.inputFormatters,
+    this.disableCopyPaste = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      onTapOutside: (_) {
+        FocusScope.of(context).unfocus();
+      },
       validator: validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: controller,
@@ -35,7 +42,13 @@ class CustomTextField extends StatelessWidget {
       maxLength: maxLength,
       onChanged: onChanged,
       keyboardType: keyboardType,
-      contextMenuBuilder: null,
+      enableInteractiveSelection: !disableCopyPaste!,
+      contextMenuBuilder: disableCopyPaste!
+          ? (BuildContext context, EditableTextState editableTextState) {
+              return const SizedBox.shrink();
+            }
+          : null,
+      inputFormatters: inputFormatters,
       style: Theme.of(context).textTheme.titleSmall,
       decoration: InputDecoration(
           contentPadding: const EdgeInsets.all(10),
@@ -73,6 +86,7 @@ class CustomTextField extends StatelessWidget {
             ),
           ),
           prefixIcon: prefixIcon,
+          prefixIconColor: Theme.of(context).appColors.grey,
           suffixIcon: suffixIcon),
     );
   }

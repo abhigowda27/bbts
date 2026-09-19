@@ -1,4 +1,4 @@
-package com.example.bbts
+package com.belbird.bbts
 
 import io.flutter.embedding.android.FlutterActivity
 

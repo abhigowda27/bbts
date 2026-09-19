@@ -6,7 +6,7 @@ class RouterDetails {
   late String routerName;
   late String routerPassword;
   late String? selectedFan;
-  late List<String> switchTypes;
+  late List<Map<String, dynamic>> switchTypes;
   late String? iPAddress;
   late String? deviceMacId;
   late String switchPasskey;
@@ -30,7 +30,7 @@ class RouterDetails {
     routerName = json['RouterName'];
     routerPassword = json['RouterPassword'];
     selectedFan = json['SelectedFan'];
-    switchTypes = List<String>.from(json['SwitchTypes'] ?? []);
+    switchTypes = List<Map<String, dynamic>>.from(json['SwitchTypes'] ?? []);
     switchPasskey = json['SwitchPassKey'];
     iPAddress = json['IPAddress'];
     deviceMacId = json["macId"];
@@ -43,7 +43,7 @@ class RouterDetails {
     routerName = json['RouterName'];
     routerPassword = json['RouterPassword'];
     selectedFan = json['SelectedFan'];
-    switchTypes = List<String>.from(json['SwitchTypes'] ?? []);
+    switchTypes = List<Map<String, dynamic>>.from(json['SwitchTypes'] ?? []);
     switchPasskey = json['SwitchPassKey'];
     iPAddress = json['IPAddress'];
     deviceMacId = json["macId"];
@@ -56,7 +56,7 @@ class RouterDetails {
     routerName = json['RouterName'];
     routerPassword = json['RouterPassword'];
     selectedFan = json['SelectedFan'];
-    switchTypes = List<String>.from(json['SwitchTypes'] ?? []);
+    switchTypes = List<Map<String, dynamic>>.from(json['SwitchTypes'] ?? []);
     switchPasskey = json['SwitchPassKey'];
     iPAddress = json['IPAddress'];
     deviceMacId = json["macId"];

@@ -10,6 +10,7 @@ import '../custom/toast.dart';
 class SwitchMatrixCard extends StatefulWidget {
   final SwitchDetails switchDetails;
   final int index;
+  final String switchName;
   final bool switchStatus;
   final String wifiName;
   const SwitchMatrixCard({
@@ -18,6 +19,7 @@ class SwitchMatrixCard extends StatefulWidget {
     required this.switchStatus,
     super.key,
     required this.wifiName,
+    required this.switchName,
   });
 
   @override
@@ -56,14 +58,14 @@ class _SwitchMatrixCardState extends State<SwitchMatrixCard> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Icon(
+          FaIcon(
             FontAwesomeIcons.solidLightbulb,
             color: switchOff ? Colors.yellow : Colors.grey,
             size: 40,
           ),
           Flexible(
             child: Text(
-              widget.switchDetails.switchTypes[widget.index],
+              widget.switchName,
               style: Theme.of(context).textTheme.bodyLarge,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -80,20 +82,20 @@ class _SwitchMatrixCardState extends State<SwitchMatrixCard> {
               try {
                 if (value) {
                   ApiConnect.hitApiPost(
-                      "${widget.switchDetails.iPAddress}/getSwitchcmd$slNo", {
+                      "${widget.switchDetails.iPAddress}/getSwitchcmd", {
                     "Lock_id": widget.switchDetails.switchId,
                     "lock_passkey": widget.switchDetails.switchPassKey,
-                    "lock_cmd$slNo": "ON$slNo"
+                    "lock_cmd": "ON$slNo"
                   });
                   setState(() {
                     switchOff = true;
                   });
                 } else if (!value) {
                   ApiConnect.hitApiPost(
-                      "${widget.switchDetails.iPAddress}/getSwitchcmd$slNo", {
+                      "${widget.switchDetails.iPAddress}/getSwitchcmd", {
                     "Lock_id": widget.switchDetails.switchId,
                     "lock_passkey": widget.switchDetails.switchPassKey,
-                    "lock_cmd$slNo": "OFF$slNo"
+                    "lock_cmd": "OFF$slNo"
                   });
                   setState(() {
                     switchOff = false;

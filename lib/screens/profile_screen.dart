@@ -102,6 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       responseData["status"] == "success") {
                     showSnackBar(context, "User Logged out successfully!");
                     SharedPreferenceServices().saveLoggedInStatus(false);
+                    SharedPreferenceServices().removeCookies();
                     navigateToHome();
                   }
                 } else if (apiResponse is ApiLoadingState) {
