@@ -459,6 +459,7 @@ class StorageController {
     String? groupsJson = await storage.read(key: 'groups');
     if (groupsJson == null) return [];
     List<dynamic> groupsList = jsonDecode(groupsJson);
+    debugPrint("groupsList $groupsList");
     return groupsList.map((json) => GroupDetails.fromJson(json)).toList();
   }
 

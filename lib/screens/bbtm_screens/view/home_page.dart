@@ -250,22 +250,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final width = screenSize.width;
 
     return Scaffold(
-      // appBar: NetworkAppBar(
-      //   height: height,
-      //   connectionStatus: _connectionStatus,
-      // ),
-      backgroundColor: Theme.of(context).appColors.background,
       body: SingleChildScrollView(
+        padding: EdgeInsets.all(20),
         child: Column(
+          spacing: 20,
           children: [
             ImageCarouselWidget(
               connectionStatus: _connectionStatus,
             ),
             GridView.builder(
-              padding: const EdgeInsets.all(20.0),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
               itemCount: lists.length,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: width > 600 ? 4 : 3,
                 childAspectRatio: 0.9,
@@ -310,11 +307,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 );
               },
             ),
+
+            // SliverFillRemaining(
+            //   hasScrollBody: false, // Prevents extra nested scrolling
+            //   child: Align(
+            //     alignment: Alignment.bottomCenter,
+            //     child: Image.asset(
+            //       color: Theme.of(context).appColors.textPrimary,
+            //       'assets/images/place_holder.png', // Replace with your image path (add to pubspec.yaml)
+            //       fit: BoxFit.contain,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: Column(
+        spacing: 15,
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
@@ -322,17 +332,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             onPressed: () {
               AppSettings.openAppSettings(type: AppSettingsType.wifi);
             },
-            backgroundColor: Theme.of(context).appColors.buttonBackground,
-            child: const Icon(Icons.wifi_find),
+            child: Icon(
+              Icons.wifi_find,
+              color: Theme.of(context).appColors.background,
+            ),
           ),
-          const SizedBox(height: 15),
           FloatingActionButton(
             heroTag: "location",
             onPressed: () {
               AppSettings.openAppSettings(type: AppSettingsType.location);
             },
-            backgroundColor: Theme.of(context).appColors.buttonBackground,
-            child: const Icon(Icons.location_on_rounded),
+            child: Icon(
+              Icons.location_on_rounded,
+              color: Theme.of(context).appColors.background,
+            ),
           ),
         ],
       ),

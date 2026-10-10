@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bbts/api_providers/dio_client.dart';
 import 'package:bbts/api_providers/theme_provider.dart';
 import 'package:bbts/common/globals.dart' as globals;
 import 'package:bbts/controllers/shared_preference.dart';
@@ -20,6 +21,7 @@ Future<void> main() async {
     ]);
     debugPrint = (String? message, {int? wrapWidth}) {};
     globals.deviceId = await DeviceUtils.getDeviceId();
+    await DioClient().init();
     runApp(
       ChangeNotifierProvider(
         create: (_) => ThemeProvider(),

@@ -11,18 +11,21 @@ class RouterDetails {
   late String? deviceMacId;
   late String switchPasskey;
   late ContactsModel? contactsModel;
+  late int? wattage;
 
-  RouterDetails(
-      {required this.switchID,
-      required this.routerName,
-      required this.routerPassword,
-      required this.iPAddress,
-      required this.deviceMacId,
-      required this.selectedFan,
-      required this.switchTypes,
-      required this.switchPasskey,
-      required this.switchName,
-      required this.contactsModel});
+  RouterDetails({
+    required this.switchID,
+    required this.routerName,
+    required this.routerPassword,
+    required this.iPAddress,
+    required this.deviceMacId,
+    required this.selectedFan,
+    required this.switchTypes,
+    required this.switchPasskey,
+    required this.switchName,
+    required this.contactsModel,
+    required this.wattage,
+  });
 
   RouterDetails.fromJson(Map<String, dynamic> json) {
     switchID = json['SwitchId'];
@@ -34,6 +37,7 @@ class RouterDetails {
     switchPasskey = json['SwitchPassKey'];
     iPAddress = json['IPAddress'];
     deviceMacId = json["macId"];
+    wattage = json['wattage'] ?? 0;
     contactsModel = ContactsModel.fromJson(json['contactsModel']);
   }
 
@@ -47,6 +51,7 @@ class RouterDetails {
     switchPasskey = json['SwitchPassKey'];
     iPAddress = json['IPAddress'];
     deviceMacId = json["macId"];
+    wattage = json['wattage'] ?? 0;
   }
 
   RouterDetails.fromJsonAdd(
@@ -60,6 +65,7 @@ class RouterDetails {
     switchPasskey = json['SwitchPassKey'];
     iPAddress = json['IPAddress'];
     deviceMacId = json["macId"];
+    wattage = json['wattage'] ?? 0;
     contactsModel = ContactsModel.fromJson(contacts);
   }
 
@@ -74,6 +80,7 @@ class RouterDetails {
     data['SwitchPassKey'] = switchPasskey;
     data['IPAddress'] = iPAddress;
     data['macId'] = deviceMacId;
+    data['wattage'] = wattage;
     data['contactsModel'] = contactsModel?.toJson() ?? {};
     return data;
   }
@@ -89,6 +96,7 @@ class RouterDetails {
     data['SwitchPassKey'] = switchPasskey;
     data['IPAddress'] = iPAddress;
     data['macId'] = deviceMacId;
+    data['wattage'] = wattage;
     return data;
   }
 

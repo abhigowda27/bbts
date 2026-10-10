@@ -1,7 +1,11 @@
 import 'dart:async';
 
+import 'package:bbts/common/common_services.dart';
+import 'package:bbts/screens/bbtm_screens/widgets/custom/toast.dart';
 import 'package:bbts/theme/app_colors_extension.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../controllers/apis.dart';
@@ -14,10 +18,13 @@ class GroupFanSwitchControl extends StatefulWidget {
   final String groupName;
   final String selectedRouter;
   final List<RouterDetails> selectedSwitches;
+  final int maximumWattage;
+
   const GroupFanSwitchControl({
     required this.groupName,
     required this.selectedRouter,
     required this.selectedSwitches,
+    required this.maximumWattage,
     super.key,
   });
 
@@ -29,7 +36,9 @@ class _GroupFanSwitchControlState extends State<GroupFanSwitchControl> {
   final StorageController _storageController = StorageController();
   late Timer _timer;
   late String selectedControl = "OFF";
-  final Duration _timerDuration = const Duration(seconds: 30);
+  final Duration _timerDuration = const Duration(seconds: 60);
+  Map<String, Map<String, dynamic>> switchStatuses = {};
+
   List<String> controls = [
     "OFF",
     "HIGH",
@@ -43,6 +52,9 @@ class _GroupFanSwitchControlState extends State<GroupFanSwitchControl> {
   void initState() {
     super.initState();
     _startTimer();
+    for (var sw in widget.selectedSwitches) {
+      _loadInitialStatus(sw);
+    }
     _loadSwitchState();
   }
 
@@ -54,6 +66,95 @@ class _GroupFanSwitchControlState extends State<GroupFanSwitchControl> {
 
   void _startTimer() {
     _timer = Timer(_timerDuration, _navigateToNextPage);
+  }
+
+  Future<void> _loadInitialStatus(RouterDetails switchDetails) async {
+    try {
+      Map<String, dynamic> apiRes =
+          await ApiConnect.hitApiGet("${switchDetails.iPAddress}/Switchstatus");
+
+      final res = Map<String, dynamic>.from(apiRes["data"]);
+
+      switchStatuses[switchDetails.switchID] = res;
+
+      setState(() {});
+    } catch (e) {
+      debugPrint("Error loading status");
+    }
+  }
+
+  Future<bool> _sendFanCommand(
+    String command,
+    RouterDetails switchDetails,
+  ) async {
+    try {
+      final currentStatus = switchStatuses[switchDetails.switchID]?["FAN"]
+              ?.toString()
+              .toUpperCase() ??
+          "OFF";
+      // Only validate when turning ON
+      final isCurrentlyOff = currentStatus == "OFF" || currentStatus == "0";
+
+      final isTurningOn = command != "OFF";
+
+      if (isCurrentlyOff && isTurningOn) {
+        int currentWattage = 0;
+
+        switchStatuses.forEach((switchId, status) {
+          final fanStatus = status["FAN"]?.toString().toUpperCase() ?? "OFF";
+
+          if (fanStatus != "OFF" && fanStatus != "0") {
+            final router = widget.selectedSwitches.firstWhere(
+              (e) => e.switchID == switchId,
+            );
+
+            currentWattage += router.wattage ?? 0;
+          }
+        });
+
+        final projectedWattage = currentWattage + (switchDetails.wattage ?? 0);
+
+        if (projectedWattage > widget.maximumWattage) {
+          showFlutterToast(
+              "Maximum wattage exceeded (${widget.maximumWattage}W)",
+              type: ToastType.warning,
+              len: Toast.LENGTH_SHORT);
+
+          return false;
+        }
+      }
+
+      final response = await ApiConnect.hitApiPost(
+        "${switchDetails.iPAddress}/getSwitchcmd",
+        {
+          "Lock_id": switchDetails.switchID,
+          "lock_passkey": switchDetails.switchPasskey,
+          "lock_cmd": command,
+        },
+      );
+
+      final res = response.toString().toLowerCase();
+
+      if (res.contains("ok")) {
+        showFlutterToast("Fan '$command' executed successfully",
+            type: ToastType.success, len: Toast.LENGTH_SHORT);
+        _loadInitialStatus(switchDetails);
+        return true;
+      } else {
+        showToast(
+          "Failed to execute. Try again.",
+        );
+      }
+      return false;
+    } on DioException catch (e) {
+      debugPrint("API Error: $e");
+      showToast("Network error");
+      return false;
+    } catch (e) {
+      debugPrint("Unexpected Error: $e");
+      showToast("Something went wrong");
+      return false;
+    }
   }
 
   Future<void> _loadSwitchState() async {
@@ -97,13 +198,13 @@ class _GroupFanSwitchControlState extends State<GroupFanSwitchControl> {
       child: Scaffold(
         appBar: AppBar(title: const Text("Fan Control")),
         body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.all(20),
           child: Column(
+            spacing: 15,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.symmetric(
                     vertical: 10.0, horizontal: 16.0),
                 decoration: BoxDecoration(
@@ -191,11 +292,17 @@ class _GroupFanSwitchControlState extends State<GroupFanSwitchControl> {
                   ],
                 ),
               ),
+              Text(
+                "Maximum Wattage ${CommonServices().formatWatt(widget.maximumWattage)}",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               ...widget.selectedSwitches
                   .where((switchDetail) => switchDetail.selectedFan!.isNotEmpty)
                   .map((switchDetail) {
                 return GroupFanSwitchCard(
                   switchDetails: switchDetail,
+                  status: switchStatuses[switchDetail.switchID],
+                  onToggle: _sendFanCommand,
                 );
               }),
             ],

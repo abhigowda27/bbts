@@ -86,4 +86,17 @@ class CommonServices {
       ),
     );
   }
+
+  String formatWatt(int watt) {
+    if (watt >= 1000) {
+      double kw = watt / 1000;
+      if (kw % 1 == 0) {
+        return "${kw.toInt()}kW";
+      } else {
+        return "${kw.toStringAsFixed(1)}kW";
+      }
+    } else {
+      return "${watt}W";
+    }
+  }
 }

@@ -1,90 +1,41 @@
 import 'dart:async';
 
-import 'package:bbts/main.dart';
+import 'package:bbts/common/common_services.dart';
+import 'package:bbts/screens/bbtm_screens/widgets/group/group_fan_switch_card.dart';
 import 'package:bbts/screens/bbtm_screens/widgets/router/router_list_card.dart';
 import 'package:bbts/theme/app_colors_extension.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../../controllers/apis.dart';
-import '../../controllers/wifi.dart';
 import '../../models/router_model.dart';
-import '../custom/toast.dart';
 
-class GroupMatrixCard extends StatefulWidget {
+class GroupMatrixCard extends StatelessWidget {
   final RouterDetails switchDetails;
+  final Map<String, dynamic>? status;
+  final Function(bool) onToggle;
+  final Future<bool> Function(String, RouterDetails) onFanToggle;
+  final Future<void> Function(RouterDetails, int, bool) toggleSingleSwitch;
+  final VoidCallback onRefresh;
   const GroupMatrixCard({
     required this.switchDetails,
+    required this.status,
+    required this.onToggle,
+    required this.onFanToggle,
+    required this.onRefresh,
     super.key,
+    required this.toggleSingleSwitch,
   });
 
   @override
-  State<GroupMatrixCard> createState() => _GroupMatrixCardState();
-}
-
-class _GroupMatrixCardState extends State<GroupMatrixCard> {
-  bool switchOff = true;
-  Map<String, dynamic> statusRes = {};
-
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  late NetworkService _networkService;
-  final Connectivity _connectivity = Connectivity();
-  StreamSubscription<List<ConnectivityResult>>? connectivitySubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _networkService = NetworkService();
-    _initNetworkInfo();
-    updateSwitch();
-    connectivitySubscription = _connectivity.onConnectivityChanged
-        .listen((List<ConnectivityResult> results) {
-      _updateConnectionStatus(results);
-    });
-  }
-
-  @override
-  void dispose() {
-    connectivitySubscription?.cancel();
-    super.dispose();
-  }
-
-  Future<void> updateSwitch() async {
-    Map<String, dynamic> apiRes = await ApiConnect.hitApiGet(
-        "${widget.switchDetails.iPAddress}/Switchstatus");
-    final Map<String, dynamic> res = Map<String, dynamic>.from(apiRes["data"]);
-
-    int totalSwitches = widget.switchDetails.switchTypes.length;
-    setState(() {
-      bool anyClosed = false;
-      for (int i = 1; i <= totalSwitches; i++) {
-        final key = "ON$i";
-        if (res.containsKey(key)) {
-          if (res[key].toString() == "0") {
-            anyClosed = true;
-            break;
-          }
-        }
-      }
-      statusRes = res;
-      switchOff = anyClosed;
-    });
-  }
-
-  String _connectionStatus = 'Unknown';
-  Future<void> _updateConnectionStatus(
-          List<ConnectivityResult> results) async =>
-      _initNetworkInfo();
-
-  Future<void> _initNetworkInfo() async {
-    String? wifiName = await _networkService.initNetworkInfo();
-    setState(() => _connectionStatus = wifiName ?? "Unknown");
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final fanStatus = status?["FAN"]?.toString().toUpperCase() ?? "OFF";
+    final isFanOn = fanStatus != "OFF" && fanStatus != "0";
+    final hasAnySwitchOn = status?.entries
+            .any((e) => e.key.startsWith("ON") && e.value.toString() == "1") ??
+        false;
+
+    bool isOn = hasAnySwitchOn || isFanOn;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       decoration: BoxDecoration(
@@ -92,7 +43,7 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
           BoxShadow(
             color: Colors.grey.withValues(alpha: 0.2),
             blurRadius: 5,
-            offset: const Offset(5, 5),
+            // offset: const Offset(5, 5),
           ),
         ],
         color: Theme.of(context).appColors.background,
@@ -107,7 +58,7 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
               children: [
                 Flexible(
                   child: Text(
-                    widget.switchDetails.switchName,
+                    "${switchDetails.switchName} - (${CommonServices().formatWatt(switchDetails.wattage ?? 0)})",
                     style: TextStyle(
                       fontSize: 20,
                       color: Theme.of(context).appColors.textPrimary,
@@ -116,55 +67,15 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () {
-                    updateSwitch();
-                  },
+                  onPressed: onRefresh,
                   icon: FaIcon(
                     FontAwesomeIcons.arrowsRotate,
                     color: Theme.of(context).appColors.buttonBackground,
                   ),
                 ),
                 Switch(
-                  onChanged: (value) async {
-                    if (!_connectionStatus
-                            .contains(widget.switchDetails.routerName) &&
-                        !widget.switchDetails.routerName
-                            .contains(_connectionStatus)) {
-                      showToast(
-                          "Please Connect WIFI to ${widget.switchDetails.routerName} to proceed");
-                      return;
-                    }
-                    try {
-                      final totalSwitches =
-                          widget.switchDetails.switchTypes.length;
-                      final switchDetails = widget.switchDetails;
-                      for (int i = 1; i <= totalSwitches; i++) {
-                        await ApiConnect.hitApiPost(
-                            "${switchDetails.iPAddress}/getSwitchcmd", {
-                          "Lock_id": switchDetails.switchID,
-                          "lock_passkey": switchDetails.switchPasskey,
-                          "lock_cmd": value ? "ON$i" : "OFF$i",
-                        }).timeout(const Duration(seconds: 5));
-                        debugPrint(value ? "ON$i" : "OFF$i");
-                      }
-                      setState(() {
-                        switchOff = !value;
-                      });
-                      await updateSwitch();
-                    } on DioException catch (e) {
-                      final scaffold =
-                          ScaffoldMessenger.of(navigatorKey.currentContext!);
-                      scaffold.showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              "Unable to perform. Try Again. Error: ${e.message}"),
-                        ),
-                      );
-                    } catch (e) {
-                      debugPrint(e.toString());
-                    }
-                  },
-                  value: !switchOff,
+                  onChanged: onToggle,
+                  value: isOn,
                   activeThumbColor: Theme.of(context).appColors.greenButton,
                   activeTrackColor: Theme.of(context).appColors.green,
                   inactiveThumbColor: Theme.of(context).appColors.redButton,
@@ -183,27 +94,46 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
                 if (snapshot.hasError) {
                   return const Text("ERROR");
                 }
-                return GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: snapshot.data?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    debugPrint(statusRes["ON${index + 1}"]?.toString());
-                    return RouterListCard(
-                      routerDetails: widget.switchDetails,
-                      index: index,
-                      switchStatus:
-                          statusRes["ON${index + 1}"]?.toString() == "1",
-                      wifiName: _connectionStatus,
-                    );
-                  },
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                  ),
+                final switches = snapshot.data ?? [];
+                return Column(
+                  spacing: 10,
+                  children: [
+                    GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: switches.length,
+                      itemBuilder: (context, index) {
+                        final switchInfo = switches[index];
+                        final physicalIndex = switchInfo['order'] as int;
+                        bool isSwitchOn =
+                            status?["ON$physicalIndex"]?.toString() == "1";
+                        debugPrint("$status");
+                        return RouterListCard(
+                          routerDetails: switchDetails,
+                          index: index,
+                          onToggle: (value) => toggleSingleSwitch(
+                              switchDetails, physicalIndex, value),
+                          switchStatus: isSwitchOn,
+                          wifiName: "",
+                        );
+                      },
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
+                      ),
+                    ),
+                    if (switchDetails.selectedFan != null &&
+                        switchDetails.selectedFan!.isNotEmpty)
+                      GroupFanSwitchCard(
+                        switchDetails: switchDetails,
+                        status: status,
+                        onToggle: onFanToggle,
+                      )
+                  ],
                 );
               }),
         ],
@@ -212,6 +142,6 @@ class _GroupMatrixCardState extends State<GroupMatrixCard> {
   }
 
   Future<List<Map<String, dynamic>>> fetchSwitches() async {
-    return widget.switchDetails.switchTypes;
+    return switchDetails.switchTypes;
   }
 }

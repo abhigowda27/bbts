@@ -5,11 +5,15 @@ ThemeData lightTheme() {
   return ThemeData(
     useMaterial3: true,
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: lightAppColors.primary.withValues(
-        alpha: 0.8,
-      ),
+      backgroundColor: lightAppColors.primary.withValues(alpha: 0.8),
+      elevation: 3,
+      splashColor: lightAppColors.primary.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(50), // roundness
+        borderRadius: BorderRadius.circular(50),
+        side: BorderSide(
+          color: lightAppColors.background,
+          width: 2,
+        ),
       ),
     ),
     scaffoldBackgroundColor: const Color(0xFFFFFFFF),
@@ -123,9 +127,15 @@ ThemeData darkTheme() {
   return ThemeData(
     useMaterial3: true,
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: lightAppColors.primary.withValues(alpha: 0.8),
+      backgroundColor: darkAppColors.primary.withValues(alpha: 0.8),
+      elevation: 3,
+      splashColor: darkAppColors.primary.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(50), // roundness
+        borderRadius: BorderRadius.circular(50),
+        side: BorderSide(
+          color: darkAppColors.background,
+          width: 2,
+        ),
       ),
     ),
     scaffoldBackgroundColor: const Color(0xFF374448),

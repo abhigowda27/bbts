@@ -1,21 +1,24 @@
 import 'dart:async';
 
 import 'package:bbts/theme/app_colors_extension.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
-import '../../../../controllers/apis.dart';
 import '../../controllers/wifi.dart';
 import '../../models/router_model.dart';
 import '../custom/toast.dart';
 
 class GroupFanSwitchCard extends StatefulWidget {
   final RouterDetails switchDetails;
+
+  final Map<String, dynamic>? status;
+  final Future<bool> Function(String command, RouterDetails switchDetails)
+      onToggle;
+
   const GroupFanSwitchCard({
     required this.switchDetails,
+    required this.status,
+    required this.onToggle,
     super.key,
   });
 
@@ -24,86 +27,131 @@ class GroupFanSwitchCard extends StatefulWidget {
 }
 
 class _GroupFanSwitchCardState extends State<GroupFanSwitchCard> {
-  final scaffoldKey = GlobalKey<ScaffoldState>();
   late String selectedControl = "OFF";
-  List<String> controls = [
+
+  final List<String> controls = [
     "OFF",
     "LOW",
     "MEDIUM",
     "HIGH",
   ];
-  final Connectivity _connectivity = Connectivity();
-  StreamSubscription<List<ConnectivityResult>>? connectivitySubscription;
+
   late NetworkService _networkService;
+  double sliderValue = 0;
+  double lastValidValue = 0;
+  DateTime? _lastLocalChange;
+  int _forceUpdateKey = 0;
 
   @override
   void initState() {
     super.initState();
     _networkService = NetworkService();
-    _initNetworkInfo();
-    updateSwitch();
-    connectivitySubscription = _connectivity.onConnectivityChanged
-        .listen((List<ConnectivityResult> results) {
-      _updateConnectionStatus(results);
-    });
+    _updateSwitch();
   }
 
+  /// ✅ WiFi validation (NEW STANDARD)
+  bool _isConnectedToRouter(String currentWifi) {
+    return currentWifi.toLowerCase().contains(
+              widget.switchDetails.routerName.toLowerCase(),
+            ) ||
+        widget.switchDetails.routerName.toLowerCase().contains(
+              currentWifi.toLowerCase(),
+            );
+  }
+
+  //
   @override
-  void dispose() {
-    connectivitySubscription?.cancel();
-    super.dispose();
+  void didUpdateWidget(covariant GroupFanSwitchCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.status != widget.status) {
+      _updateSwitch();
+    }
   }
 
-  void updateSwitch() async {
-    Map<String, dynamic> apiRes = await ApiConnect.hitApiGet(
-        "${widget.switchDetails.iPAddress}/Switchstatus");
-    final Map<String, dynamic> res = Map<String, dynamic>.from(apiRes["data"]);
-    setState(() {
-      if (res["FAN"] == "LOW") {
-        debugPrint("low");
-        selectedControl = "LOW";
-      } else if (res["FAN"] == "MED") {
-        debugPrint("medium");
-        selectedControl = "MEDIUM";
-      } else if (res["FAN"] == "HIGH") {
-        debugPrint("high");
-        selectedControl = "HIGH";
-      } else {
-        selectedControl = "OFF";
+  /// ✅ Fetch current FAN state
+  void _updateSwitch() {
+    try {
+      // Ignore external updates for 3 seconds after local interaction to avoid API lag jumps
+      if (_lastLocalChange != null &&
+          DateTime.now().difference(_lastLocalChange!).inSeconds < 3) {
+        debugPrint(
+            "GroupFanSwitchCard: Ignoring external update for ${widget.switchDetails.switchID} due to recent local change");
+        return;
       }
-    });
-  }
 
-  String _connectionStatus = 'Unknown';
-  Future<void> _updateConnectionStatus(
-          List<ConnectivityResult> results) async =>
-      _initNetworkInfo();
+      final res = widget.status;
+      if (res == null) return;
 
-  Future<void> _initNetworkInfo() async {
-    String? wifiName = await _networkService.initNetworkInfo();
-    setState(() => _connectionStatus = wifiName ?? "Unknown");
+      final fanState = (res["FAN"] ?? "").toString().toUpperCase();
+
+      if (!mounted) return;
+      debugPrint(
+          "GroupFanSwitchCard: _updateSwitch for ${widget.switchDetails.switchID} state: $fanState");
+
+      setState(() {
+        _forceUpdateKey++; // Increment key to force SleekCircularSlider to update its initialValue
+        switch (fanState) {
+          case "LOW":
+          case "1":
+            selectedControl = "LOW";
+            sliderValue = 1;
+            lastValidValue = 1;
+            break;
+
+          case "MED":
+          case "MEDIUM":
+          case "2":
+            selectedControl = "MEDIUM";
+            sliderValue = 2;
+            lastValidValue = 2;
+            break;
+
+          case "HIGH":
+          case "3":
+            selectedControl = "HIGH";
+            sliderValue = 3;
+            lastValidValue = 3;
+            break;
+
+          case "OFF":
+          case "0":
+            selectedControl = "OFF";
+            sliderValue = 0;
+            lastValidValue = 0;
+            break;
+
+          default:
+            // If we don't recognize the state, don't reset unless it's genuinely empty
+            if (fanState.isEmpty) {
+              selectedControl = "OFF";
+              sliderValue = 0;
+              lastValidValue = 0;
+            }
+        }
+      });
+    } catch (e) {
+      debugPrint("Error updating switch status: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [
-            Colors.blueAccent,
-            Colors.lightBlueAccent,
-            Colors.greenAccent,
+            Colors.blueAccent.withValues(alpha: 0.8),
+            Colors.pinkAccent.withValues(alpha: 0.5),
+            Colors.deepPurpleAccent.withValues(alpha: 0.5),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: const [
           BoxShadow(
             color: Colors.black26,
-            spreadRadius: 2,
             blurRadius: 6,
             offset: Offset(2, 2),
           ),
@@ -111,96 +159,23 @@ class _GroupFanSwitchCardState extends State<GroupFanSwitchCard> {
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  "${widget.switchDetails.routerName}-${widget.switchDetails.selectedFan}",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: Theme.of(context).appColors.background),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(12.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                      spreadRadius: 3,
-                      blurRadius: 5,
-                      offset: const Offset(2, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    updateSwitch();
-                  },
-                  icon: FaIcon(
-                    FontAwesomeIcons.arrowsRotate,
-                    color: Theme.of(context).appColors.background,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const FaIcon(
-                FontAwesomeIcons.fan,
-                size: 35,
-                color: Colors.deepPurpleAccent,
-              ),
-            ],
-          ),
-          Divider(
-            color: Theme.of(context).appColors.background,
-          ),
-          // CupertinoSlidingSegmentedControl<String>(
-          //   groupValue: selectedControl,
-          //   backgroundColor: Colors.transparent,
-          //   thumbColor: const Color(0xff2cd2ec),
-          //   children: {
-          //     for (var control in controls)
-          //       control: Text(
-          //         control,
-          //         style: const TextStyle(
-          //           color: Colors.white,
-          //           fontSize: 18,
-          //           fontWeight: FontWeight.bold,
-          //         ),
-          //       ),
-          //   },
-          //   onValueChanged: (value) async {
-          //     if (!_connectionStatus
-          //             .contains(widget.switchDetails.routerName) &&
-          //         !widget.switchDetails.routerName
-          //             .contains(_connectionStatus)) {
-          //       showToast(
-          //         context,
-          //         "Please Connect WIFI to ${widget.switchDetails.routerName} to proceed",
-          //       );
-          //       setState(() {});
-          //       return;
-          //     }
-          //     setState(() {
-          //       selectedControl = value!;
-          //     });
-          //     debugPrint(value);
-          //     await sendFanCommand(widget.switchDetails, value!);
-          //   },
-          // ),
+          /// HEADER
 
-// Inside your widget build:
+          /// SLIDER
           SleekCircularSlider(
+            key: ValueKey("${widget.switchDetails.switchID}_$_forceUpdateKey"),
             min: 0,
-            max: controls.length.toDouble() - 1, // total steps
-            initialValue: controls.indexOf(selectedControl).toDouble(),
+            max: controls.length.toDouble() - 1,
+            initialValue: sliderValue,
+            onChange: (value) {
+              setState(() {
+                sliderValue = value;
+              });
+            },
             appearance: CircularSliderAppearance(
               size: 150,
               startAngle: 150,
-              angleRange: 240, // like a dial
+              angleRange: 240,
               customWidths: CustomSliderWidths(
                 trackWidth: 8,
                 progressBarWidth: 12,
@@ -218,73 +193,89 @@ class _GroupFanSwitchCardState extends State<GroupFanSwitchCard> {
                   Colors.greenAccent,
                 ],
                 dotColor: Colors.white,
-                shadowColor: Colors.black26,
               ),
               infoProperties: InfoProperties(
-                mainLabelStyle: Theme.of(context)
-                    .textTheme
-                    .titleLarge!
-                    .copyWith(color: Theme.of(context).appColors.background),
+                mainLabelStyle:
+                    Theme.of(context).textTheme.titleMedium!.copyWith(
+                          color: Theme.of(context).appColors.background,
+                        ),
                 modifier: (value) {
-                  final index = value.round();
-                  return controls[index]; // show control name
+                  return controls[value.round()];
                 },
               ),
             ),
             onChangeEnd: (value) async {
               final control = controls[value.round()];
+              _lastLocalChange = DateTime.now();
+              final currentWifi = await _networkService.initNetworkInfo();
 
-              if (!_connectionStatus
-                      .contains(widget.switchDetails.routerName) &&
-                  !widget.switchDetails.routerName
-                      .contains(_connectionStatus)) {
+              if (!_isConnectedToRouter(currentWifi!)) {
                 showToast(
-                  "Please Connect WIFI to ${widget.switchDetails.routerName} to proceed",
+                  "Please connect to ${widget.switchDetails.routerName}",
                 );
-                setState(() {});
                 return;
               }
 
-              setState(() {
-                selectedControl = control;
-              });
-
-              debugPrint(control);
-              await sendFanCommand(widget.switchDetails, control);
+              final success =
+                  await widget.onToggle(control, widget.switchDetails);
+              if (success) {
+                lastValidValue = value;
+              } else {
+                setState(() {
+                  _forceUpdateKey++;
+                  sliderValue = lastValidValue;
+                });
+              }
             },
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  "${widget.switchDetails.selectedFan}",
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).appColors.background,
+                      ),
+                ),
+              ),
+
+              // /// Refresh
+              // IconButton(
+              //   onPressed: widget.onRefresh,
+              //   icon: Icon(
+              //     FontAwesomeIcons.arrowsRotate,
+              //     color: Theme.of(context).appColors.background,
+              //   ),
+              // ),
+              //
+              // const Icon(
+              //   FontAwesomeIcons.fan,
+              //   size: 35,
+              //   color: Colors.deepPurpleAccent,
+              // ),
+              // Container(
+              //   padding: const EdgeInsets.all(8),
+              //   decoration: BoxDecoration(
+              //     color: Theme.of(context)
+              //         .appColors
+              //         .primary
+              //         .withValues(alpha: 0.12),
+              //     borderRadius: BorderRadius.circular(10),
+              //   ),
+              //   child: Image.asset(
+              //     Constants().applianceIconAsset(
+              //       widget.switchDetails.switchType ?? "",
+              //     ),
+              //     width: 45,
+              //     height: 45,
+              //   ),
+              // ),
+            ],
           ),
         ],
       ),
     );
-  }
-
-  Future<void> sendFanCommand(
-      RouterDetails routerDetails, String command) async {
-    try {
-      final response = await ApiConnect.hitApiPost(
-        "${routerDetails.iPAddress}/getSwitchcmd",
-        {
-          "Lock_id": routerDetails.switchID,
-          "lock_passkey": routerDetails.switchPasskey,
-          "lock_cmd": command,
-        },
-      );
-      debugPrint(command);
-      debugPrint(response);
-      debugPrint("${routerDetails.iPAddress}/getSwitchcmd" "$command ");
-      if (response == "Ok") {
-        showToast(
-            "Fan '$command' executed successfully for ${routerDetails.selectedFan}");
-      } else {
-        showToast("Failed to execute. Try again.");
-      }
-    } on DioException catch (e) {
-      debugPrint(e.toString());
-      showToast("An unexpected error occurred}");
-    } catch (e) {
-      debugPrint(e.toString());
-
-      showToast("An unexpected error occurred}");
-    }
   }
 }

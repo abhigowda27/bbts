@@ -1,3 +1,4 @@
+import 'package:bbts/api_providers/dio_client.dart';
 import 'package:bbts/api_providers/theme_provider.dart';
 import 'package:bbts/blocs/login/login_bloc.dart';
 import 'package:bbts/blocs/login/login_event.dart';
@@ -90,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             BlocListener<LoginBloc, CommonState>(
               bloc: _logoutBloc,
-              listener: (context, state) {
+              listener: (context, state) async {
                 final apiResponse = state.apiStatus;
                 if (apiResponse is ApiResponse) {
                   setState(() {
@@ -102,7 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       responseData["status"] == "success") {
                     showSnackBar(context, "User Logged out successfully!");
                     SharedPreferenceServices().saveLoggedInStatus(false);
-                    SharedPreferenceServices().removeCookies();
+                    await DioClient().clearCookies();
                     navigateToHome();
                   }
                 } else if (apiResponse is ApiLoadingState) {

@@ -38,6 +38,8 @@ dependencies:
   string_similarity: ^2.1.1
   mobile_scanner: ^7.1.4
   app_settings: ^9.0.0
+  cookie_jar: ^4.0.9
+  dio_cookie_manager: ^3.5.0
 
 dev_dependencies:
   flutter_test:

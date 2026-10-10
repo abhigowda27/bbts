@@ -1,3 +1,4 @@
+import 'package:bbts/theme/app_colors_extension.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
@@ -45,104 +46,128 @@ class _ImageCarouselWidgetState extends State<ImageCarouselWidget>
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final double height = screenHeight * 0.35;
+    final double height = screenHeight * 0.2;
 
-    return SizedBox(
-      height: height,
-      width: double.infinity,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: CarouselSlider(
-              options: CarouselOptions(
-                height: height,
-                autoPlay: true,
-                autoPlayInterval: const Duration(seconds: 3),
-                viewportFraction: 1.0,
-                enableInfiniteScroll: true,
+    return Column(
+      spacing: 5,
+      children: [
+        Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                        width: 2,
+                        color: Theme.of(context)
+                            .appColors
+                            .grey
+                            .withValues(alpha: 0.1)),
+                    color: Theme.of(context)
+                        .appColors
+                        .primary
+                        .withValues(alpha: 0.1)),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    FadeTransition(
+                      opacity: _opacityAnimation,
+                      child: Icon(
+                        widget.connectionStatus.toLowerCase() == "unknown"
+                            ? Icons.wifi_off
+                            : Icons.wifi_rounded,
+                        color:
+                            widget.connectionStatus.toLowerCase() == "unknown"
+                                ? Colors.redAccent
+                                : Colors.greenAccent,
+                        size: screenHeight * 0.035,
+                      ),
+                    ),
+                    Text('"${widget.connectionStatus}"',
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium),
+                  ],
+                ),
               ),
-              items: imagePaths.map((path) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Image.asset(
-                      path,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
+              Container(
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        width: 2, color: Theme.of(context).appColors.redButton),
+                    color: Theme.of(context).appColors.primary),
+                child: Image.asset(
+                  "assets/images/BBT_Logo_2.png",
+                  width: screenHeight * 0.05,
+                  height: screenHeight * 0.05,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ]),
+        SizedBox(
+          height: height,
+          width: double.infinity,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: CarouselSlider(
+                  options: CarouselOptions(
+                    height: height,
+                    autoPlay: true,
+                    autoPlayInterval: const Duration(seconds: 3),
+                    viewportFraction: 1.0,
+                    enableInfiniteScroll: true,
+                  ),
+                  items: imagePaths.map((path) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.asset(
+                            path,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          ),
+                        );
+                      },
                     );
-                  },
-                );
-              }).toList(),
-            ),
+                  }).toList(),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                bottom: 0,
+                left: 25,
+                right: 25,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Experience the Future of Smart Living',
+                      textAlign: TextAlign.center,
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                              ),
+                    ),
+                    Text(
+                      'Discover the future of Comfort, Control & Care with BelBird Technologies',
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            right: 10,
-            top: 20,
-            child: Image.asset(
-              "assets/images/BBT_Logo_2.png",
-              width: screenHeight * 0.08,
-              height: screenHeight * 0.08,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 25,
-            right: 25,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Experience the Future of Smart Living',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                ),
-                Text(
-                  'Discover the future of Comfort, Control & Care with BelBird Technologies',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
-            child: Row(
-              children: [
-                FadeTransition(
-                  opacity: _opacityAnimation,
-                  child: Icon(
-                    widget.connectionStatus.toLowerCase() == "unknown"
-                        ? Icons.wifi_off
-                        : Icons.wifi_rounded,
-                    color: widget.connectionStatus.toLowerCase() == "unknown"
-                        ? Colors.redAccent
-                        : Colors.greenAccent,
-                    size: screenHeight * 0.035,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    '"${widget.connectionStatus}"',
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

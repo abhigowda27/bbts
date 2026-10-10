@@ -10,6 +10,7 @@ class SwitchDetails {
   late String switchPassKey;
   late List<Map<String, dynamic>> switchTypes;
   late ContactsModel contactsModel;
+  late int? wattage;
 
   SwitchDetails(
       {required this.switchId,
@@ -19,7 +20,8 @@ class SwitchDetails {
       required this.switchPassword,
       required this.selectedFan,
       required this.iPAddress,
-      required this.contactsModel});
+      required this.contactsModel,
+      required this.wattage});
 
   factory SwitchDetails.fromJson(
     Map<String, dynamic> switchJson,
@@ -36,6 +38,7 @@ class SwitchDetails {
       switchPassword: switchJson['SwitchPassword'] ?? '',
       iPAddress: switchJson['IPAddress'] ?? '',
       switchPassKey: switchJson['SwitchPasskey'] ?? '',
+      wattage: switchJson['wattage'] ?? 0,
       contactsModel: ContactsModel.fromJson(contactJson),
     );
   }
@@ -52,6 +55,7 @@ class SwitchDetails {
       switchPassword: json['SwitchPassword'] ?? '',
       iPAddress: json['IPAddress'] ?? '',
       switchPassKey: json['SwitchPasskey'] ?? '',
+      wattage: json['wattage'],
       contactsModel: ContactsModel.fromJson(json['contactsModel'] ?? {}),
     );
   }
@@ -66,6 +70,7 @@ class SwitchDetails {
     data['IPAddress'] = iPAddress;
     data['SwitchPasskey'] = switchPassKey;
     data['contactsModel'] = contactsModel.toJson();
+    data['wattage'] = wattage;
     return data;
   }
 

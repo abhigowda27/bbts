@@ -8,9 +8,6 @@ class SharedPreferenceServices {
       SharedPreferenceServices._internal();
 
   String isLoggedIn = "is_logged_in";
-  String registerCookie = "register_cookie";
-
-  String authCookie = "auth_cookie";
   late SharedPreferences pref;
 
   Future<void> init() async {
@@ -23,29 +20,5 @@ class SharedPreferenceServices {
 
   bool? getLoggedInStatus() {
     return pref.getBool(isLoggedIn);
-  }
-
-  // to save AuthCookie
-
-  Future<void> saveAuthCookie(String cookie) async {
-    await pref.setString(authCookie, cookie);
-  }
-
-  String? getAuthCookie() {
-    return pref.getString(authCookie);
-  }
-
-  // TO save OTP cookie to verify
-  Future<void> saveOtpCookie(String cookie) async {
-    await pref.setString(registerCookie, cookie);
-  }
-
-  String? getOtpCookie() {
-    return pref.getString(registerCookie);
-  }
-
-  Future<void> removeCookies() async {
-    await pref.remove(authCookie);
-    await pref.remove(registerCookie);
   }
 }

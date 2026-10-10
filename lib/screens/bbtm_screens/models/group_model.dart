@@ -7,6 +7,7 @@ class GroupDetails {
   late String selectedRouter;
   late String routerPassword;
   late List<RouterDetails> selectedSwitches;
+  late int maximumWattage;
   late ContactsModel contactsModel;
 
   GroupDetails({
@@ -14,6 +15,7 @@ class GroupDetails {
     required this.selectedRouter,
     required this.routerPassword,
     required this.selectedSwitches,
+    required this.maximumWattage,
     required this.contactsModel,
   });
 
@@ -21,6 +23,7 @@ class GroupDetails {
     groupName = json['groupName'];
     selectedRouter = json['selectedRouter'];
     routerPassword = json['routerPassword'];
+    maximumWattage = json['maximumWattage'] ?? 00;
     contactsModel = ContactsModel.fromJson(json['contactsModel']);
     var switchList = json['selectedSwitches'] as List;
     selectedSwitches =
@@ -33,6 +36,7 @@ class GroupDetails {
     selectedRouter = json['selectedRouter'];
     routerPassword = json['routerPassword'];
     contactsModel = ContactsModel.fromJson(contact);
+    maximumWattage = json['maximumWattage'] ?? 00;
     var switchList = json['selectedSwitches'] as List;
     selectedSwitches =
         switchList.map((e) => RouterDetails.fromJsonGroup(e)).toList();
@@ -43,7 +47,7 @@ class GroupDetails {
     data['groupName'] = groupName;
     data['selectedRouter'] = selectedRouter;
     data['contactsModel'] = contactsModel.toJson();
-
+    data['maximumWattage'] = maximumWattage;
     data['routerPassword'] = routerPassword;
     data['selectedSwitches'] =
         selectedSwitches.map((e) => e.toJsonGroup()).toList();

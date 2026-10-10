@@ -9,20 +9,19 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../controllers/wifi.dart';
 import '../../models/router_model.dart';
 import '../../widgets/custom/custom_button.dart';
-import '../../widgets/custom/toast.dart';
-import 'group_fan_switch_control.dart';
 import 'group_on_off.dart';
 
 class ConnectToGroupWidget extends StatefulWidget {
   final String groupName;
   final String selectedRouter;
   final List<RouterDetails> selectedSwitches;
-
+  final int maximumWattage;
   const ConnectToGroupWidget(
       {required this.groupName,
       required this.selectedRouter,
       required this.selectedSwitches,
-      super.key});
+      super.key,
+      required this.maximumWattage});
 
   @override
   State<ConnectToGroupWidget> createState() => _ConnectToSwitchWidgetState();
@@ -69,56 +68,58 @@ class _ConnectToSwitchWidgetState extends State<ConnectToGroupWidget> {
           const SizedBox(
             height: 20,
           ),
-          if (widget.selectedSwitches
-              .any((element) => element.switchTypes.isNotEmpty)) ...[
-            CustomButton(
-                icon: Icons.lightbulb,
-                text: "Connect to Group Switch",
-                onPressed: () {
-                  if (!_connectionStatus.contains(widget.selectedRouter) &&
-                      !widget.selectedRouter.contains(_connectionStatus)) {
-                    Fluttertoast.showToast(
-                        toastLength: Toast.LENGTH_LONG,
-                        backgroundColor:
-                            Theme.of(context).appColors.textSecondary,
-                        textColor: Theme.of(context).appColors.background,
-                        msg:
-                            "Please Connect WIFI to '${widget.selectedRouter}' to proceed");
-                    AppSettings.openAppSettings(type: AppSettingsType.wifi);
-                    return;
-                  }
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GroupSwitchOnOff(
-                                groupName: widget.groupName,
-                                selectedRouter: widget.selectedRouter,
-                                selectedSwitches: widget.selectedSwitches,
-                              )));
-                }),
-          ],
-          if (widget.selectedSwitches
-              .any((element) => element.selectedFan!.isNotEmpty)) ...[
-            CustomButton(
-                text: "Connect to Group Fans",
-                icon: Icons.wind_power_outlined,
-                onPressed: () {
-                  if (!_connectionStatus.contains(widget.selectedRouter) &&
-                      !widget.selectedRouter.contains(_connectionStatus)) {
-                    showToast(
-                        "Please Connect WIFI to '${widget.selectedRouter}' to proceed");
-                    return;
-                  }
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GroupFanSwitchControl(
-                                groupName: widget.groupName,
-                                selectedRouter: widget.selectedRouter,
-                                selectedSwitches: widget.selectedSwitches,
-                              )));
-                }),
-          ],
+          CustomButton(
+              icon: Icons.lightbulb,
+              text: "Connect to Group Switch",
+              onPressed: () {
+                if (!_connectionStatus.contains(widget.selectedRouter) &&
+                    !widget.selectedRouter.contains(_connectionStatus)) {
+                  Fluttertoast.showToast(
+                      toastLength: Toast.LENGTH_LONG,
+                      backgroundColor:
+                          Theme.of(context).appColors.textSecondary,
+                      textColor: Theme.of(context).appColors.background,
+                      msg:
+                          "Please Connect WIFI to '${widget.selectedRouter}' to proceed");
+                  AppSettings.openAppSettings(type: AppSettingsType.wifi);
+                  return;
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GroupSwitchOnOff(
+                      maximumWattage: widget.maximumWattage,
+                      groupName: widget.groupName,
+                      selectedRouter: widget.selectedRouter,
+                      selectedSwitches: widget.selectedSwitches,
+                    ),
+                  ),
+                );
+              }),
+
+          // if (widget.selectedSwitches
+          //     .any((element) => element.selectedFan!.isNotEmpty)) ...[
+          //   CustomButton(
+          //       text: "Connect to Group Fans",
+          //       icon: Icons.wind_power_outlined,
+          //       onPressed: () {
+          //         if (!_connectionStatus.contains(widget.selectedRouter) &&
+          //             !widget.selectedRouter.contains(_connectionStatus)) {
+          //           showToast(
+          //               "Please Connect WIFI to '${widget.selectedRouter}' to proceed");
+          //           return;
+          //         }
+          //         Navigator.push(
+          //             context,
+          //             MaterialPageRoute(
+          //                 builder: (context) => GroupFanSwitchControl(
+          //                       maximumWattage: widget.maximumWattage,
+          //                       groupName: widget.groupName,
+          //                       selectedRouter: widget.selectedRouter,
+          //                       selectedSwitches: widget.selectedSwitches,
+          //                     )));
+          //       }),
+          // ],
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
